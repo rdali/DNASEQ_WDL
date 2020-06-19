@@ -1,0 +1,38 @@
+{
+
+  "DnaSeq.ReadsetFile": "readsetwdl.dnaseq.tsv",
+  "DnaSeq.OUT_DIR": "/home/rdali/projects/rrg-bourqueg-ad/rdali/C3G/projects/dnaseqTestSet",
+  "DnaSeq.TMPDIR": "/scratch/rdali",
+
+
+  "DnaSeq.MOD_PICARD": "mugqic/picard/2.9.0",
+  "DnaSeq.PICARD_HOME": "/cvmfs/soft.mugqic/CentOS6/software/picard/picard-2.9.0",
+  "DnaSeq.MOD_JAVA": "mugqic/java/openjdk-jdk1.8.0_72",
+  "DnaSeq.MOD_BWA": "mugqic/bwa/0.7.15",
+  "DnaSeq.MOD_TRIMMOMATIC": "mugqic/trimmomatic/0.35",
+  "DnaSeq.TRIMMOMATIC_JAR": "/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.35/trimmomatic-0.35.jar",
+
+
+  "DnaSeq.picard_sam_to_fastq.THREADS": 1,
+  "DnaSeq.picard_sam_to_fastq.BUFFER": 1048576,
+  "DnaSeq.picard_sam_to_fastq.RAM": "18G",
+
+
+  "DnaSeq.trimmomatic.THREADS": 5,
+  "DnaSeq.trimmomatic.RAM": "2G",
+  "DnaSeq.trimmomatic.BUFFER": 1048576,
+  "DnaSeq.trimmomatic.TRAILING": 30,
+  "DnaSeq.trimmomatic.MINLEN": 50,
+
+
+  "DnaSeq.bwa_mem_picard_sort_sam.BAM_HEADER": "@RG\tID:S2_R1\tSM:S2\tLB:2\tPU:run1_1\tCN:McGill University and Genome Quebec Innovation Centre\tPL:Illumina",
+  "DnaSeq.bwa_mem_picard_sort_sam.REF_FASTA": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/bwa_index/Homo_sapiens.GRCh37.fa",
+  "DnaSeq.bwa_mem_picard_sort_sam.THREADS": 1,
+  "DnaSeq.bwa_mem_picard_sort_sam.MAX_REC": 3750000,
+  "DnaSeq.bwa_mem_picard_sort_sam.BUFFER": 1048576,
+  "DnaSeq.bwa_mem_picard_sort_sam.RAM": "16G"
+
+
+
+
+}
