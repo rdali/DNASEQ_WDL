@@ -4,6 +4,15 @@
   "DnaSeq.OUT_DIR": "/home/rdali/projects/rrg-bourqueg-ad/rdali/C3G/projects/dnaseqTestSet",
   "DnaSeq.TMPDIR": "/scratch/rdali",
 
+  "DnaSeq.SPECIES": "HUMAN",
+  "DnaSeq.ASSEMBLY": "hg19",  
+  "DnaSeq.GENOME_FASTA": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.fa",
+  "DnaSeq.GENOME_DICT": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.dict",
+  "DnaSeq.DB_SNP": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.dbSNP142.vcf.gz",
+  "DnaSeq.DB_SNP_COMMON": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/annotations/common.dbsnp132.q60.tsv",
+  "DnaSeq.DB_SFP": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/annotations/dbNSFPv3.5c/dbNSFP3.5c.txt.gz",
+  "DnaSeq.IlluEXCLUSION" : "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/annotations/mappabilityGC/Illu_PE.exclusion.bed.gz",
+
 
   "DnaSeq.MOD_PICARD": "mugqic/picard/2.9.0",
   "DnaSeq.PICARD_HOME": "/cvmfs/soft.mugqic/CentOS6/software/picard/picard-2.9.0",
@@ -11,6 +20,27 @@
   "DnaSeq.MOD_BWA": "mugqic/bwa/0.7.15",
   "DnaSeq.MOD_TRIMMOMATIC": "mugqic/trimmomatic/0.35",
   "DnaSeq.TRIMMOMATIC_JAR": "/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.35/trimmomatic-0.35.jar",
+  "DnaSeq.MOD_SAMTOOLS": "mugqic/samtools/1.4.1",
+  "DnaSeq.MOD_SAMBAMBA": "mugqic/sambamba/0.6.6",
+  "DnaSeq.MOD_BVATOOLS": "mugqic/bvatools/1.6",
+  "DnaSeq.BVATOOLS_JAR": "/cvmfs/soft.mugqic/CentOS6/software/bvatools/bvatools-1.6/bvatools-1.6-full.jar",
+  "DnaSeq.MOD_GATK": "mugqic/GenomeAnalysisTK/3.8",
+  "DnaSeq.GATK_JAR": "/cvmfs/soft.mugqic/CentOS6/software/GenomeAnalysisTK/GenomeAnalysisTK-3.8/GenomeAnalysisTK.jar",
+  "DnaSeq.MOD_R": "mugqic/R_Bioconductor/3.4.1_3.5",
+  "DnaSeq.MOD_QUALIMAP": "mugqic/qualimap/2.2.1",
+  "DnaSeq.MOD_FASTQC": "mugqic/fastqc/0.11.51",
+  "DnaSeq.MOD_HTSLIB": "mugqic/htslib/1.8",
+  "DnaSeq.MOD_VT": "mugqic/vt/0.57",
+  "DnaSeq.MOD_VCFTOOLS": "mugqic/vcftools/0.1.14",
+  "DnaSeq.MOD_TABIX": "mugqic/tabix/0.2.6",
+  "DnaSeq.MOD_SNPEFF": "mugqic/snpEff/4.3",
+  "DnaSeq.SNPEFF_HOME": "/cvmfs/soft.mugqic/CentOS6/software/snpEff/snpEff_4_3",
+  "DnaSeq.MOD_GEMINI": "mugqic/gemini/0.20.1",
+  "DnaSeq.MOD_PYTHON": "mugqic/python/2.7.14",
+  "DnaSeq.MOD_MUGQICTOOLS": "mugqic/mugqic_tools/2.2.2",
+  "DnaSeq.PYTHON_TOOLS": "/cvmfs/soft.mugqic/CentOS6/software/mugqic_tools/mugqic_tools-2.2.2/python-tools/",
+  "DnaSeq.MOD_MULTIQC": "mugqic/fastqc/0.11.51",
+  
 
 
   "DnaSeq.picard_sam_to_fastq.THREADS": 1,
@@ -30,9 +60,78 @@
   "DnaSeq.bwa_mem_picard_sort_sam.THREADS": 1,
   "DnaSeq.bwa_mem_picard_sort_sam.MAX_REC": 3750000,
   "DnaSeq.bwa_mem_picard_sort_sam.BUFFER": 1048576,
-  "DnaSeq.bwa_mem_picard_sort_sam.RAM": "16G"
+  "DnaSeq.bwa_mem_picard_sort_sam.RAM": "16G",
 
 
+
+  "DnaSeq.fix_mate_by_coordinate.THREADS": 1,
+  "DnaSeq.fix_mate_by_coordinate.BUFFER1": 4194304,
+  "DnaSeq.fix_mate_by_coordinate.BUFFER2": 1048576,
+  "DnaSeq.fix_mate_by_coordinate.RAM": "16G",
+  "DnaSeq.fix_mate_by_coordinate.MAX_REC": 3750000,
+
+  "DnaSeq.picard_mark_duplicates.THREADS": 2,
+  "DnaSeq.picard_mark_duplicates.BUFFER": 4194304,
+  "DnaSeq.picard_mark_duplicates.RAM": "10G",
+  "DnaSeq.picard_mark_duplicates.MAX_REC": 2500000,
+
+  "DnaSeq.recalibration_report.THREADS": 1,
+  "DnaSeq.recalibration_report.BUFFER": 1048576,
+  "DnaSeq.recalibration_report.RAM": "55G",
+
+  "DnaSeq.metrics_dna_picard_metrics_main.THREADS": 1,
+  "DnaSeq.metrics_dna_picard_metrics_main.BUFFER": 1048576,
+  "DnaSeq.metrics_dna_picard_metrics_main.RAM": "6G",
+  "DnaSeq.metrics_dna_picard_metrics_main.MAX_REC": 1000000,
+
+  "DnaSeq.metrics_dna_picard_metrics_oxog.THREADS": 1,
+  "DnaSeq.metrics_dna_picard_metrics_oxog.BUFFER": 1048576,
+  "DnaSeq.metrics_dna_picard_metrics_oxog.RAM": "6G",
+  "DnaSeq.metrics_dna_picard_metrics_oxog.MAX_REC": 1000000,
+
+  "DnaSeq.metrics_dna_picard_metrics_biasQc.THREADS": 1,
+  "DnaSeq.metrics_dna_picard_metrics_biasQc.BUFFER": 1048576,
+  "DnaSeq.metrics_dna_picard_metrics_biasQc.RAM": "6G",
+  "DnaSeq.metrics_dna_picard_metrics_biasQc.MAX_REC": 4000000,
+
+  "DnaSeq.metrics_dna_sample_qualimap.RAM": "55G",
+
+  "DnaSeq.gatk_callable_loci.THREADS": 1,
+  "DnaSeq.gatk_callable_loci.BUFFER": 1048576,
+  "DnaSeq.gatk_callable_loci.RAM": "10G",
+  "DnaSeq.gatk_callable_loci.MINDEPTH": 10,
+  "DnaSeq.gatk_callable_loci.MAXDEPTH": 500,
+  "DnaSeq.gatk_callable_loci.MINMQ": 15,
+
+  "DnaSeq.extract_common_snp_freq.THREADS": 1,
+  "DnaSeq.extract_common_snp_freq.BUFFER": 1048576,
+  "DnaSeq.extract_common_snp_freq.RAM": "10G",
+
+  "DnaSeq.baf_plot.THREADS": 1,
+  "DnaSeq.baf_plot.BUFFER": 1048576,
+  "DnaSeq.baf_plot.RAM": "70G",
+  "DnaSeq.baf_plot.MAXDEPTH": 1000,
+  "DnaSeq.baf_plot.CHR_EXCLUDE": "MT,GL000207.1,GL000226.1,GL000229.1,GL000231.1,GL000210.1,GL000239.1,GL000235.1,GL000201.1,GL000247.1,GL000245.1,GL000197.1,GL000203.1,GL000246.1,GL000249.1,GL000196.1,GL000248.1,GL000244.1,GL000238.1,GL000202.1,GL000234.1,GL000232.1,GL000206.1,GL000240.1,GL000236.1,GL000241.1,GL000243.1,GL000242.1,GL000230.1,GL000237.1,GL000233.1,GL000204.1,GL000198.1,GL000208.1,GL000191.1,GL000227.1,GL000228.1,GL000214.1,GL000221.1,GL000209.1,GL000218.1,GL000220.1,GL000213.1,GL000211.1,GL000199.1,GL000217.1,GL000216.1,GL000215.1,GL000205.1,GL000219.1,GL000224.1,GL000223.1,GL000195.1,GL000212.1,GL000222.1,GL000200.1,GL000193.1,GL000194.1,GL000225.1,GL000192.1",
+
+  "DnaSeq.merge_and_call_combined_gvcf_merges.THREADS": 1,
+  "DnaSeq.merge_and_call_combined_gvcf_merges.BUFFER": 1048576,
+  "DnaSeq.merge_and_call_combined_gvcf_merges.RAM": "6G",
+
+  "DnaSeq.merge_and_call_combined_gvcf_calls.THREADS": 1,
+  "DnaSeq.merge_and_call_combined_gvcf_calls.BUFFER": 1048576,
+  "DnaSeq.merge_and_call_combined_gvcf_calls.RAM": "30G",
+
+
+  "DnaSeq.haplotype_caller_snp_id_annotation.THREADS": 2,
+  "DnaSeq.haplotype_caller_snp_id_annotation.RAM": "8G",
+
+  "DnaSeq.haplotype_caller_snp_effect.THREADS": 2,
+  "DnaSeq.haplotype_caller_snp_effect.RAM": "8G",
+
+  "DnaSeq.haplotype_caller_dbnsfp_annotation.THREADS": 2,
+  "DnaSeq.haplotype_caller_dbnsfp_annotation.RAM": "24G",
+
+  "DnaSeq.haplotype_caller_gemini_annotations.CPU": 10,
 
 
 }
