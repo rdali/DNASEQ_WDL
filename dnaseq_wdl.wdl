@@ -21,7 +21,7 @@ workflow DnaSeq {
     File GENOME_FASTA
     File GENOME_DICT
     File DB_SNP
-    File DB_SNP_COMMON\
+    File DB_SNP_COMMON
     File DB_SFP
     File IlluEXCLUSION
 
@@ -93,6 +93,7 @@ workflow DnaSeq {
 			READSET = READSET,
 			IN_FQ1 = trimmomatic.OUT_FQ1_TRIM,
 			IN_FQ2 = trimmomatic.OUT_FQ2_TRIM,
+			GENOME_FASTA = GENOME_FASTA,
 			MOD_JAVA = MOD_JAVA,
 			MOD_BWA = MOD_BWA,
 			MOD_PICARD = MOD_PICARD,
@@ -100,17 +101,10 @@ workflow DnaSeq {
 			TMPDIR = TMPDIR
 		}
 
-		## IF 1 readset, symlink else merge
-		call sambamba_merge_sam_files {
-			input:
-
-		}
 
 	}
 	
 }
-
-
 
 
 
@@ -124,14 +118,17 @@ workflow DnaSeq {
 task picard_sam_to_fastq {
 
 	String READSET
-	String IN_BAM
+	File IN_BAM
+
+	String MOD_JAVA
+	String MOD_PICARD
+	String PICARD_HOME
+
 	String TMPDIR
 	Int THREADS
 	Int BUFFER
 	String RAM
-	String MOD_JAVA
-	String MOD_PICARD
-	String PICARD_HOME
+
 
 	command <<<
 
@@ -158,9 +155,11 @@ task trimmomatic {
 	File IN_FQ2
 	String ADAPTER1
 	String ADAPTER2	
+
 	String MOD_JAVA
 	String MOD_TRIMMOMATIC
 	String TRIMMOMATIC_JAR
+
 	Int THREADS
 	Int BUFFER
 	String RAM
@@ -209,27 +208,27 @@ task bwa_mem_picard_sort_sam {
 	String READSET
 	File IN_FQ1
 	File IN_FQ2
-	File REF_FASTA
+	File GENOME_FASTA
 	String BAM_HEADER
 
 	String MOD_JAVA
 	String MOD_BWA
 	String MOD_PICARD
+	String PICARD_HOME
 
 	String TMPDIR
 	Int THREADS
 	Int BUFFER
 	String RAM
-	String PICARD_HOME
 	Int MAX_REC
 
 command <<<
 module purge && \
 module load ${MOD_JAVA} ${MOD_BWA} ${MOD_PICARD} && \
-bwa mem  \
+bwa mem \
   -M -t 15 \
   -R ${BAM_HEADER} \
-  ${REF_FASTA} \
+  ${GENOME_FASTA} \
   ${IN_FQ1} \
   ${IN_FQ2} | \
  java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${PICARD_HOME}/picard.jar SortSam \
@@ -247,7 +246,6 @@ output {
 	
 	}
 }
-
 
 
 
@@ -269,6 +267,7 @@ ${SAMPLE}.sorted.bam \
 	>>>
 
 output {
+
 	File OUT_MERGED_BAM="${SAMPLE}${PREFIX}"
 	
 	}
@@ -276,7 +275,57 @@ output {
 
 
 
-##gatk_indel_realigner
+task gatk_indel_realigner {
+
+	String SAMPLE
+	File IN_BAM
+	String INTERVAL
+
+	File GENOME_FASTA
+	File G1000
+
+	String MOD_JAVA
+	String MOD_GATK
+	String GATK_JAR
+
+	String TMPDIR
+	Int THREADS
+	Int BUFFER
+	String RAM
+	Int NT
+	Int NCT
+	Int MAX_REC
+	
+
+command <<<
+module purge && \
+module load ${MOD_JAVA} ${MOD_GATK} && \
+java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
+  --analysis_type RealignerTargetCreator -nct ${NT} -nt ${NCT} \
+  --reference_sequence ${GENOME_FASTA} \
+  --input_file ${IN_BAM} \
+  --known ${G1000} \
+  --out ${SAMPLE}.sorted.realigned.${INTERVAL}.intervals \
+  --intervals ${INTERVAL} && \
+java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
+  --analysis_type IndelRealigner -nt ${NT} -nct ${NT} \
+  --reference_sequence ${GENOME_FASTA} \
+  --input_file ${IN_BAM} \
+  --targetIntervals ${SAMPLE}.sorted.realigned.${INTERVAL}.intervals \
+  --knownAlleles ${G1000} \
+  --out ${SAMPLE}.sorted.realigned.${INTERVAL}.bam \
+  --intervals ${INTERVAL} \
+  --maxReadsInMemory ${MAX_REC}
+	>>>
+
+output {
+
+	File OUT_INTRVL="${SAMPLE}.sorted.realigned.${INTERVAL}.intervals"
+	File OUT_BAM="${SAMPLE}.sorted.realigned.${INTERVAL}.bam"
+	
+	}
+}
+
 
 
 task fix_mate_by_coordinate {
@@ -290,16 +339,17 @@ task fix_mate_by_coordinate {
 	String MOD_PICARD
 	String PICARD_HOME
 
+	String TMPDIR
 	Int THREADS
 	Int BUFFER1
 	Int BUFFER2
+	String RAM
 	Int MAX_REC
-	String TMPDIR
 
 command <<<
 module purge && \
 module load ${MOD_JAVA} ${MOD_BVATOOLS} ${MOD_PICARD} && \
-java -XX:+UseParallelGC -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${BVATOOLS_JAR} \
+java -XX:+UseParallelGC -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER1} -Xmx${RAM} -jar ${BVATOOLS_JAR} \
   groupfixmate \
   --level 1 \
   --bam ${IN_BAM} \
@@ -360,12 +410,12 @@ output {
 }
 
 
-## TO COMPLETE
 task recalibration_report {
 
 	String SAMPLE
 	File IN_BAM
-	File REF_FASTA
+	File GENOME_FASTA
+	Array[File] KNOWNSITES
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -375,25 +425,27 @@ task recalibration_report {
 	Int THREADS
 	Int BUFFER
 	String RAM
+	Int BQSR
+	Int CPUTHREADS
 
 
+##  KNOWNSITES = [DB_SNP, G1000, GNOMAD]
 
 command <<<
 module purge && \
 module load ${MOD_JAVA} ${MOD_GATK} && \
 java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
-  --analysis_type BaseRecalibrator --bqsrBAQGapOpenPenalty 30 \
-  -nt 1 --num_cpu_threads_per_data_thread 12 \
+  --analysis_type BaseRecalibrator --bqsrBAQGapOpenPenalty ${BQSR} \
+  -nt 1 --num_cpu_threads_per_data_thread ${CPUTHREADS} \
   --input_file ${IN_BAM} \
-  --reference_sequence /cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.fa  \
-  --knownSites /cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.dbSNP142.vcf.gz \
-  --knownSites /cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.gnomad.exomes.r2.0.1.sites.no-VEP.nohist.tidy.vcf.gz \
-  --knownSites /cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.Mills_and_1000G_gold_standard.indels.vcf.gz \
-  --out alignment/S1/S1.sorted.dup.recalibration_report.grp
+  --reference_sequence ${GENOME_FASTA} \
+  (${sep="--knownSites " KNOWNSITES})
+  --out ${SAMPLE}.sorted.dup.recalibration_report.grp
 	>>>
 
 output {
-	String OUT1="alignment/S1/S1.sorted.dup.recalibration_report.grp"
+
+	File OUT_CLB_RPT="${SAMPLE}.sorted.dup.recalibration_report.grp"
 	
 	}
 }
@@ -401,34 +453,47 @@ output {
 
 task recalibration {
 
-	String IN1="alignment/S1/S1.sorted.dup.bam"
-	String IN2="alignment/S1/S1.sorted.dup.recalibration_report.grp"
+	String SAMPLE
+	File IN_BAM
+
+	File GENOME_FASTA
+	File IN_CLB_RPT
 	
+	String MOD_JAVA
+	String MOD_GATK
+	String GATK_JAR
+	String MOD_SAMTOOLS
+	String MOD_SAMBAMBA
+
+	String TMPDIR
+	Int THREADS
+	Int BUFFER
+	String RAM
+	Int CPUTHREADS
 
 command <<<
-	module purge && \
-module load mugqic/java/openjdk-jdk1.8.0_72 mugqic/GenomeAnalysisTK/3.8 mugqic/samtools/1.4.1 mugqic/sambamba/0.6.6 && \
-java -Djava.io.tmpdir=${SLURM_TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=4 -Dsamjdk.buffer_size=4194304 -Xmx24G -jar $GATK_JAR \
+module purge && \
+module load ${MOD_JAVA} ${MOD_GATK} ${MOD_SAMTOOLS} ${MOD_SAMBAMBA} && \
+java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
   --analysis_type PrintReads --generate_md5 \
-  -nt 1 --num_cpu_threads_per_data_thread 5 \
-  --input_file alignment/S1/S1.sorted.dup.bam \
-  --reference_sequence /cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.fa \
-  --BQSR alignment/S1/S1.sorted.dup.recalibration_report.grp \
-  --out alignment/S1/S1.sorted.dup.recal.bam && \
+  -nt 1 --num_cpu_threads_per_data_thread ${CPUTHREADS} \
+  --input_file ${IN_BAM} \
+  --reference_sequence ${GENOME_FASTA} \
+  --BQSR ${IN_CLB_RPT} \
+  --out ${SAMPLE}.sorted.dup.recal.bam && \
 sambamba index -t 10 \
-  alignment/S1/S1.sorted.dup.recal.bam \
-  alignment/S1/S1.sorted.dup.recal.bam.bai
+  ${SAMPLE}.sorted.dup.recal.bam \
+  ${SAMPLE}.sorted.dup.recal.bam.bai
 	>>>
 
 output {
-	String OUT1="alignment/S1/S1.sorted.dup.recal.bam"
-	String OUT2="alignment/S1/S1.sorted.dup.recal.bai"
-	String OUT3="alignment/S1/S1.sorted.dup.recal.bam.bai"
+
+	File OUT_BAM="${SAMPLE}.sorted.dup.recal.bam"
+	File OUT_BAI="${SAMPLE}.sorted.dup.recal.bai"
+	File OUT_BAMBAI="${SAMPLE}.sorted.dup.recal.bam.bai"
 	
 	}
 }
-
-#####
 
 
 task metrics_dna_picard_metrics_main {
@@ -502,7 +567,7 @@ command <<<
 module purge && \
 module load ${MOD_JAVA} ${MOD_PICARD} ${MOD_R} && \
 java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx6G -jar ${PICARD_HOME}/picard.jar CollectOxoGMetrics \
- VALIDATION_STRINGENCY=SILENT  \
+ VALIDATION_STRINGENCY=SILENT \
  TMP_DIR=${TMPDIR} \
  INPUT=${IN_BAM} \
  OUTPUT=${SAMPLE}.picard_metrics.oxog_metrics.txt \
@@ -661,6 +726,7 @@ task gatk_callable_loci {
 	String RAM
 	Int MINDEPTH
 	Int MAXDEPTH
+	Int MINMQ
 
 
 command <<<
@@ -734,6 +800,7 @@ task baf_plot {
 	Int THREADS
 	Int BUFFER
 	String RAM
+	Int MAXDEPTH
 
 command <<<
 module purge && \
@@ -754,14 +821,155 @@ output {
 }
 
 
-## TO DO
-#call gatk_haplotype_caller	#scatters on sample and Chr
-#call merge_and_call_individual_gvcf_merge	## gathers on Chr to get samples
-#call merge_and_call_individual_gvcf_calls	
-#call combine_gvcf_1_JOB_ID
-#call combine_gvcf_2_JOB_ID	
-#call combine_gvcf_3_JOB_ID	
-#call combine_gvcf_4_JOB_ID	
+task gatk_haplotype_caller {
+
+	String SAMPLE
+	File IN_BAM
+	Array[String] CHR_EXCLUDE
+
+	File GENOME_FASTA
+	String INTERVAL
+
+	String MOD_JAVA
+	String MOD_GATK
+	String GATK_JAR
+
+	String TMPDIR
+	Int THREADS
+	Int BUFFER
+	String RAM
+	Int NCT
+
+command <<<
+module purge && \
+module load ${MOD_JAVA} ${MOD_GATK} && \
+java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
+  --analysis_type HaplotypeCaller --useNewAFCalculator --emitRefConfidence GVCF -dt none -nct ${NCT} -G StandardAnnotation -G StandardHCAnnotation \
+  --disable_auto_index_creation_and_locking_when_reading_rods \
+  --reference_sequence ${GENOME_FASTA} \
+  --input_file ${IN_BAM} \
+  --out ${SAMPLE}.${INTERVAL}.hc.g.vcf.gz \
+  --intervals ${INTERVAL}
+  (${sep="--excludeIntervals " CHR_EXCLUDE})
+	>>>
+
+output {
+
+	File OUT_VCF_INTRVL="${SAMPLE}.${INTERVAL}.hc.g.vcf.gz"
+	File OUT_TBI_INTRVL="${SAMPLE}.${INTERVAL}.hc.g.vcf.gz.tbi"
+	
+	}
+}
+
+
+
+task merge_and_call_individual_gvcf_merge {
+
+	String SAMPLE
+	Array[File] IN_VCFS_INTRVL	
+
+	File GENOME_FASTA
+
+	String MOD_JAVA
+	String MOD_GATK
+	String GATK_JAR
+
+	String TMPDIR
+	Int THREADS
+	Int BUFFER
+	String RAM
+
+command <<<
+module purge && \
+module load ${MOD_JAVA} ${MOD_GATK} && \
+java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -cp ${GATK_JAR} \
+  org.broadinstitute.gatk.tools.CatVariants  \
+  --reference ${GENOME_FASTA} \
+  (${sep="--variant " IN_VCFS_INTRVL})
+  --outputFile ${SAMPLE}.hc.g.vcf.gz
+	>>>
+
+output {
+
+	File OUT_VCF_G="${SAMPLE}.hc.g.vcf.gz"
+	
+	}
+}
+
+
+task merge_and_call_individual_gvcf_calls {
+
+	String SAMPLE
+	File IN_VCF_G
+	
+	File GENOME_FASTA
+	String INTERVAL
+
+	String MOD_JAVA
+	String MOD_GATK
+	String GATK_JAR
+
+	String TMPDIR
+	Int THREADS
+	Int BUFFER
+	String RAM
+	Int NCT
+
+command <<<
+module purge && \
+module load ${MOD_JAVA} ${MOD_GATK} && \
+java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
+  --analysis_type GenotypeGVCFs --useNewAFCalculator -G StandardAnnotation -G StandardHCAnnotation \
+  --disable_auto_index_creation_and_locking_when_reading_rods \
+  --reference_sequence ${GENOME_FASTA} \
+  --variant ${IN_VCF_G} \
+  --out ${SAMPLE}.hc.vcf.gz
+	>>>
+
+output {
+
+	File OUT_VCF="${SAMPLE}.hc.vcf.gz"
+	
+	}
+}
+
+task combine_gvcf {
+	
+	Array[File] IN_VCFS_G
+	Array[String] CHR_EXCLUDE
+
+	File GENOME_FASTA
+	String INTERVAL
+
+	String MOD_JAVA
+	String MOD_GATK
+	String GATK_JAR
+
+	String TMPDIR
+	Int THREADS
+	Int BUFFER
+	String RAM
+
+command <<<
+	module purge && \
+module load ${MOD_JAVA} ${MOD_GATK} && \
+java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
+  --analysis_type CombineGVCFs  \
+  --disable_auto_index_creation_and_locking_when_reading_rods \
+  --reference_sequence ${GENOME_FASTA} \
+    (${sep="--variant " IN_VCFS_G})
+  --out allSamples.${INTERVAL}.hc.g.vcf.bgz \
+    (${sep="--excludeIntervals " CHR_EXCLUDE})
+	>>>
+
+output {
+
+	File OUT_VCF_G="allSamples.${INTERVAL}.hc.g.vcf.bgz"
+	
+	}
+}
+
+
 
 task merge_and_call_combined_gvcf_merges {
 
@@ -782,7 +990,7 @@ command <<<
 module purge && \
 module load ${MOD_JAVA} ${MOD_GATK} && \
 java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -cp ${GATK_JAR} \
-  org.broadinstitute.gatk.tools.CatVariants  \
+  org.broadinstitute.gatk.tools.CatVariants \
   --reference ${GENOME_FASTA} \
   (${sep="--variant " VCFS})
   --outputFile allSamples.hc.g.vcf.gz
@@ -813,7 +1021,6 @@ task merge_and_call_combined_gvcf_calls {
 	String RAM	
 
 	
-
 command <<<
 module purge && \
 module load ${MOD_JAVA} ${MOD_GATK} && \
@@ -826,89 +1033,120 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
 	>>>
 
 output {
+
 	File OUT_VCF_ALL="allSamples.hc.vcf.gz"
 	
 	}
 }
 
 
-
 task variant_recalibrator_prep {
 
-	String IN1="variants/allSamples.hc.vcf.gz"
+	File IN_VCF_ALL
+
+	File GENOME_FASTA
+
+	String RSRC_SNP
+	String RSCR_INDL
+
+	String MOD_JAVA
+	String MOD_GATK
+	String GATK_JAR
+	String MOD_R
+
+	String TMPDIR
+	Int THREADS
+	Int BUFFER
+	String RAM
+	Int NT	
 	
 
 command <<<
-	module purge && \
-module load mugqic/java/openjdk-jdk1.8.0_72 mugqic/GenomeAnalysisTK/3.8 mugqic/R_Bioconductor/3.4.1_3.5 && \
-mkdir -p variants && \
-java -Djava.io.tmpdir=${SLURM_TMPDIR} -XX:ParallelGCThreads=1 -Dsamjdk.buffer_size=1048576 -Xmx24G -jar $GATK_JAR \
-  --analysis_type VariantRecalibrator -nt 11 \
+module purge && \
+module load ${MOD_JAVA} ${MOD_GATK} ${MOD_R} && \
+java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
+  --analysis_type VariantRecalibrator -nt ${NT} \
   --disable_auto_index_creation_and_locking_when_reading_rods \
-  --reference_sequence /cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.fa \
-  -input variants/allSamples.hc.vcf.gz \
-  -resource:hapmap,known=false,training=true,truth=true,prior=15.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/hapmap_3.3.b37.sites.vcf.gz -resource:omni,known=false,training=true,truth=false,prior=12.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/1000G_omni2.5.b37.vcf.gz -resource:1000G,known=false,training=true,truth=false,prior=10.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/1000G_phase1.snps.high_confidence.b37.vcf.gz -resource:dbsnp,known=true,training=false,truth=false,prior=6.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.dbSNP142.vcf.gz -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an DP -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 -mode SNP \
-  --recal_file variants/allSamples.hc.snps.recal \
-  --tranches_file variants/allSamples.hc.snps.tranches  \
-  --rscript_file variants/allSamples.hc.snps.R && \
-java -Djava.io.tmpdir=${SLURM_TMPDIR} -XX:ParallelGCThreads=1 -Dsamjdk.buffer_size=1048576 -Xmx24G -jar $GATK_JAR \
-  --analysis_type VariantRecalibrator -nt 11 \
+  --reference_sequence ${GENOME_FASTA} \
+  -input ${IN_VCF_ALL} \
+  ${RSRC_SNP} \
+  --recal_file allSamples.hc.snps.recal \
+  --tranches_file allSamples.hc.snps.tranches \
+  --rscript_file allSamples.hc.snps.R && \
+java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
+  --analysis_type VariantRecalibrator -nt ${NT} \
   --disable_auto_index_creation_and_locking_when_reading_rods \
-  --reference_sequence /cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.fa \
-  -input variants/allSamples.hc.vcf.gz \
-  -resource:mills,known=false,training=true,truth=true,prior=12.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.Mills_and_1000G_gold_standard.indels.vcf.gz -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.dbSNP142.vcf.gz -an QD -an DP -an FS -an ReadPosRankSum -an MQRankSum -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 -mode INDEL \
-  --recal_file variants/allSamples.hc.indels.recal \
-  --tranches_file variants/allSamples.hc.indels.tranches  \
-  --rscript_file variants/allSamples.hc.indels.R
+  --reference_sequence ${GENOME_FASTA} \
+  -input ${IN_VCF_ALL} \
+  ${RSRC_SNP} \
+  --recal_file allSamples.hc.indels.recal \
+  --tranches_file allSamples.hc.indels.tranches \
+  --rscript_file allSamples.hc.indels.R
 	>>>
 
 output {
-	String OUT1="variants/allSamples.hc.snps.recal"
-	String OUT2="variants/allSamples.hc.snps.tranches"
-	String OUT3="variants/allSamples.hc.snps.R"
-	String OUT4="variants/allSamples.hc.indels.recal"
-	String OUT5="variants/allSamples.hc.indels.tranches"
-	String OUT6="variants/allSamples.hc.indels.R"
+
+	File OUT_SNP_RCL="allSamples.hc.snps.recal"
+	File OUT_SNP_TRNCH="allSamples.hc.snps.tranches"
+	File OUT_SNP_R="allSamples.hc.snps.R"
+	File OUT_INDL_RCL="allSamples.hc.indels.recal"
+	File OUT_INDL_TRNCH="allSamples.hc.indels.tranches"
+	File OUT_INDL_R="allSamples.hc.indels.R"
 	
 	}
 }
 
 task variant_recalibrator_exec {
-
-	String IN1="variants/allSamples.hc.vcf.gz"
-	String IN2="variants/allSamples.hc.snps.recal"
-	String IN3="variants/allSamples.hc.snps.tranches"
-	String IN4="variants/allSamples.hc.indels.recal"
-	String IN5="variants/allSamples.hc.indels.tranches"
 	
+	File IN_VCF_ALL
+	File IN_SNP_RCL
+	File IN_SNP_TRNCH
+	File IN_SNP_R
+	File IN_INDL_RCL
+	File IN_INDL_TRNCH
+	File IN_INDL_R
+
+	File GENOME_FASTA
+
+	String MOD_JAVA
+	String MOD_GATK
+	String GATK_JAR
+
+	String TMPDIR
+	Int THREADS
+	Int BUFFER
+	String RAM
+	Int NT
+	Float FILT_SNP
+	Float FILT_INDL
 
 command <<<
-	module purge && \
-module load mugqic/java/openjdk-jdk1.8.0_72 mugqic/GenomeAnalysisTK/3.8 && \
-mkdir -p variants && \
-java -Djava.io.tmpdir=${SLURM_TMPDIR} -XX:ParallelGCThreads=1 -Dsamjdk.buffer_size=1048576 -Xmx24G -jar $GATK_JAR \
-  --analysis_type ApplyRecalibration -nt 11 \
+module purge && \
+module load ${MOD_JAVA} ${MOD_GATK} && \
+java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
+  --analysis_type ApplyRecalibration -nt ${NT} \
   --disable_auto_index_creation_and_locking_when_reading_rods \
-  --reference_sequence /cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.fa \
-  -input variants/allSamples.hc.vcf.gz \
-  --ts_filter_level 99.5 -mode SNP \
-  --tranches_file variants/allSamples.hc.snps.tranches \
-  --recal_file variants/allSamples.hc.snps.recal \
-  --out variants/allSamples.hc.snps_raw_indels.vqsr.vcf.gz && \
-java -Djava.io.tmpdir=${SLURM_TMPDIR} -XX:ParallelGCThreads=1 -Dsamjdk.buffer_size=1048576 -Xmx24G -jar $GATK_JAR \
-  --analysis_type ApplyRecalibration -nt 11 \
+  --reference_sequence ${GENOME_FASTA} \
+  -input ${IN_VCF_ALL} \
+  --ts_filter_level ${FILT_SNP} -mode SNP \
+  --tranches_file ${IN_SNP_TRNCH} \
+  --recal_file ${IN_SNP_RCL} \
+  --out allSamples.hc.snps_raw_indels.vqsr.vcf.gz && \
+java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
+  --analysis_type ApplyRecalibration -nt ${NT} \
   --disable_auto_index_creation_and_locking_when_reading_rods \
-  --reference_sequence /cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.fa \
-  -input variants/allSamples.hc.snps_raw_indels.vqsr.vcf.gz \
-  --ts_filter_level 99.0 -mode INDEL \
-  --tranches_file variants/allSamples.hc.indels.tranches \
-  --recal_file variants/allSamples.hc.indels.recal \
-  --out variants/allSamples.hc.vqsr.vcf
+  --reference_sequence {$GENOME_FASTA} \
+  -input allSamples.hc.snps_raw_indels.vqsr.vcf.gz \
+  --ts_filter_level ${FILT_INDL} -mode INDEL \
+  --tranches_file ${IN_INDL_TRNCH} \
+  --recal_file ${IN_INDL_RCL} \
+  --out allSamples.hc.vqsr.vcf
 	>>>
 
 output {
-	String OUT1="variants/allSamples.hc.snps_raw_indels.vqsr.vcf.gz"
-	String OUT2="variants/allSamples.hc.vqsr.vcf"
+
+	File OUT_VQSR_RAW="allSamples.hc.snps_raw_indels.vqsr.vcf.gz"
+	File OUT_VQSR="allSamples.hc.vqsr.vcf"
 	
 	}
 }
@@ -920,22 +1158,25 @@ task haplotype_caller_decompose_and_normalize {
 
 	File IN_VQSR
 	File GENOME_FASTA
+
+	String MOD_HTSLIB
+	String MOD_VT
 	
 
 command <<<
 module purge && \
 module load ${MOD_HTSLIB} ${MOD_VT} && \
-zless variants/${IN_VQSR} | sed 's/ID=AD,Number=./ID=AD,Number=R/' | vt decompose -s - | vt normalize -r ${GENOME_FASTA} -  \
+zless variants/${IN_VQSR} | sed 's/ID=AD,Number=./ID=AD,Number=R/' | vt decompose -s - | vt normalize -r ${GENOME_FASTA} - \
           | \
 bgzip -cf \
  > \
-allSamples.hc.vqsr.vt.vcf.gz && tabix -pvcf allSamples.hc.vqsr.vt.vcf.gz   \
+allSamples.hc.vqsr.vt.vcf.gz && tabix -pvcf allSamples.hc.vqsr.vt.vcf.gz \
 
 	>>>
 
 output {
 
-	String OUT_VT="allSamples.hc.vqsr.vt.vcf.gz"
+	File OUT_VT="allSamples.hc.vqsr.vt.vcf.gz"
 	
 	}
 }
@@ -1035,7 +1276,6 @@ command <<<
 module purge && \
 module load ${MOD_JAVA} ${MOD_SNPEFF} ${MOD_HTSLIB} ${MOD_TABIX} && \
 java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Xmx${RAM} -jar ${SNPEFF_HOME}/snpEff.jar eff -lof \
-   \
   -c ${SNPEFF_HOME}/snpEff.config \
   -i vcf \
   -o vcf \
@@ -1152,7 +1392,7 @@ python ${PYTHON_TOOLS}/vcfStats.py \
 
 output {
 
-	String OUT_CHGRATE="allSamples.hc.vqsr.vt.mil.snpId.snpeff.dbnsfp.vcf.part_changeRate.tsv"
+	File OUT_CHGRATE="allSamples.hc.vqsr.vt.mil.snpId.snpeff.dbnsfp.vcf.part_changeRate.tsv"
 	
 	}
 }
@@ -1162,7 +1402,8 @@ output {
 task run_multiqc {
 	
 	Array[File] METRICS
-	## Need to make it run at the very end	
+	## Need to make it run at the very end
+	String MOD_MULTIQC
 
 command <<<
 module purge && \
