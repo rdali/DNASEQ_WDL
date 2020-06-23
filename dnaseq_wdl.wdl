@@ -19,6 +19,7 @@ workflow DnaSeq {
     String SPECIES
     String ASSEMBLY
     File GENOME_FASTA
+    String BWA_INDX
     File GENOME_DICT
     File DB_SNP
     File DB_SNP_COMMON
@@ -63,23 +64,27 @@ workflow DnaSeq {
 	    
 	    String READSET = ReadsetFileLine[1]
 
-		call picard_sam_to_fastq {
-			
-			input: 
-			READSET = READSET,
-			IN_BAM = ReadsetFileLine[12],
-			TMPDIR = TMPDIR,
-			MOD_JAVA = MOD_JAVA,
-			MOD_PICARD = MOD_PICARD,
-			PICARD_HOME = PICARD_HOME
 
+	    if (length(ReadsetFileLine) == 13){
+
+			call picard_sam_to_fastq {
+				
+				input: 
+				READSET = READSET,
+				IN_BAM = ReadsetFileLine[12],
+				TMPDIR = TMPDIR,
+				MOD_JAVA = MOD_JAVA,
+				MOD_PICARD = MOD_PICARD,
+				PICARD_HOME = PICARD_HOME
+
+			}
 		}
 
 		call trimmomatic {
 			input: 
 			READSET = READSET,
-			IN_FQ1 = picard_sam_to_fastq.OUT_FQ1, ## or ReadsetFileLine[10]
-			IN_FQ2 = picard_sam_to_fastq.OUT_FQ2, ## or ReadsetFileLine[11]
+			IN_FQ1 = select_first([picard_sam_to_fastq.OUT_FQ1, ReadsetFileLine[10]]),
+			IN_FQ2 = select_first([picard_sam_to_fastq.OUT_FQ2, ReadsetFileLine[11]]),
 			ADAPTER1 = ReadsetFileLine[6],
 			ADAPTER2 = ReadsetFileLine[7],
 			MOD_JAVA = MOD_JAVA,
@@ -93,7 +98,7 @@ workflow DnaSeq {
 			READSET = READSET,
 			IN_FQ1 = trimmomatic.OUT_FQ1_TRIM,
 			IN_FQ2 = trimmomatic.OUT_FQ2_TRIM,
-			GENOME_FASTA = GENOME_FASTA,
+			BWA_INDX = BWA_INDX,
 			MOD_JAVA = MOD_JAVA,
 			MOD_BWA = MOD_BWA,
 			MOD_PICARD = MOD_PICARD,
@@ -208,7 +213,7 @@ task bwa_mem_picard_sort_sam {
 	String READSET
 	File IN_FQ1
 	File IN_FQ2
-	File GENOME_FASTA
+	String BWA_INDX  ## must be String so that bwa can find the index
 	String BAM_HEADER
 
 	String MOD_JAVA
@@ -227,8 +232,8 @@ module purge && \
 module load ${MOD_JAVA} ${MOD_BWA} ${MOD_PICARD} && \
 bwa mem \
   -M -t 15 \
-  -R ${BAM_HEADER} \
-  ${GENOME_FASTA} \
+  -R "${BAM_HEADER}" \
+  ${BWA_INDX} \
   ${IN_FQ1} \
   ${IN_FQ2} | \
  java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${PICARD_HOME}/picard.jar SortSam \
@@ -439,7 +444,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
   -nt 1 --num_cpu_threads_per_data_thread ${CPUTHREADS} \
   --input_file ${IN_BAM} \
   --reference_sequence ${GENOME_FASTA} \
-  (${sep="--knownSites " KNOWNSITES})
+  (${sep=" --knownSites " KNOWNSITES})
   --out ${SAMPLE}.sorted.dup.recalibration_report.grp
 	>>>
 
@@ -850,7 +855,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
   --input_file ${IN_BAM} \
   --out ${SAMPLE}.${INTERVAL}.hc.g.vcf.gz \
   --intervals ${INTERVAL}
-  (${sep="--excludeIntervals " CHR_EXCLUDE})
+  (${sep=" --excludeIntervals " CHR_EXCLUDE})
 	>>>
 
 output {
@@ -885,7 +890,7 @@ module load ${MOD_JAVA} ${MOD_GATK} && \
 java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -cp ${GATK_JAR} \
   org.broadinstitute.gatk.tools.CatVariants  \
   --reference ${GENOME_FASTA} \
-  (${sep="--variant " IN_VCFS_INTRVL})
+  (${sep=" --variant " IN_VCFS_INTRVL})
   --outputFile ${SAMPLE}.hc.g.vcf.gz
 	>>>
 
@@ -957,9 +962,9 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREA
   --analysis_type CombineGVCFs  \
   --disable_auto_index_creation_and_locking_when_reading_rods \
   --reference_sequence ${GENOME_FASTA} \
-    (${sep="--variant " IN_VCFS_G})
+    (${sep=" --variant " IN_VCFS_G})
   --out allSamples.${INTERVAL}.hc.g.vcf.bgz \
-    (${sep="--excludeIntervals " CHR_EXCLUDE})
+    (${sep=" --excludeIntervals " CHR_EXCLUDE})
 	>>>
 
 output {
@@ -992,7 +997,7 @@ module load ${MOD_JAVA} ${MOD_GATK} && \
 java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -cp ${GATK_JAR} \
   org.broadinstitute.gatk.tools.CatVariants \
   --reference ${GENOME_FASTA} \
-  (${sep="--variant " VCFS})
+  (${sep=" --variant " VCFS})
   --outputFile allSamples.hc.g.vcf.gz
 	>>>
 

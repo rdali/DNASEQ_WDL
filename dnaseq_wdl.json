@@ -7,6 +7,7 @@
   "DnaSeq.SPECIES": "HUMAN",
   "DnaSeq.ASSEMBLY": "hg19",  
   "DnaSeq.GENOME_FASTA": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.fa",
+  "DnaSeq.BWA_INDX": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/bwa_index/Homo_sapiens.GRCh37.fa",
   "DnaSeq.GENOME_DICT": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.dict",
   "DnaSeq.DB_SNP": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.dbSNP142.vcf.gz",
   "DnaSeq.DB_SNP_COMMON": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/annotations/common.dbsnp132.q60.tsv",
