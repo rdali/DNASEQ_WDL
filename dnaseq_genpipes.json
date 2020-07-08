@@ -1,6 +1,5 @@
 {
 
-  "DnaSeq.ReadsetFile": "readsetwdl.dnaseq.tsv",
   "DnaSeq.OUT_DIR": "/home/rdali/projects/rrg-bourqueg-ad/rdali/C3G/projects/dnaseqTestSet",
   "DnaSeq.TMPDIR": "/scratch/rdali",
 
@@ -48,23 +47,23 @@
   
 
 
-  "DnaSeq.picard_sam_to_fastq.THREADS": 1,
-  "DnaSeq.picard_sam_to_fastq.BUFFER": 1048576,
-  "DnaSeq.picard_sam_to_fastq.RAM": "18G",
+  "DnaSeq.readsetScatter.picard_sam_to_fastq.THREADS": 1,
+  "DnaSeq.readsetScatter.picard_sam_to_fastq.BUFFER": 1048576,
+  "DnaSeq.readsetScatter.picard_sam_to_fastq.RAM": "18G",
 
 
-  "DnaSeq.trimmomatic.THREADS": 5,
-  "DnaSeq.trimmomatic.RAM": "2G",
-  "DnaSeq.trimmomatic.BUFFER": 1048576,
-  "DnaSeq.trimmomatic.TRAILING": 30,
-  "DnaSeq.trimmomatic.MINLEN": 50,
+  "DnaSeq.readsetScatter.trimmomatic.THREADS": 5,
+  "DnaSeq.readsetScatter.trimmomatic.RAM": "2G",
+  "DnaSeq.readsetScatter.trimmomatic.BUFFER": 1048576,
+  "DnaSeq.readsetScatter.trimmomatic.TRAILING": 30,
+  "DnaSeq.readsetScatter.trimmomatic.MINLEN": 50,
 
 
-  "DnaSeq.bwa_mem_picard_sort_sam.BAM_HEADER": "@RG\tID:S2_R1\tSM:S2\tLB:2\tPU:run1_1\tCN:McGill University and Genome Quebec Innovation Centre\tPL:Illumina",
-  "DnaSeq.bwa_mem_picard_sort_sam.THREADS": 1,
-  "DnaSeq.bwa_mem_picard_sort_sam.BUFFER": 1048576,
-  "DnaSeq.bwa_mem_picard_sort_sam.RAM": "16G",
-  "DnaSeq.bwa_mem_picard_sort_sam.MAX_REC": 3750000,
+  "DnaSeq.readsetScatter.bwa_mem_picard_sort_sam.BAM_HEADER": "@RG\tID:S2_R1\tSM:S2\tLB:2\tPU:run1_1\tCN:McGill University and Genome Quebec Innovation Centre\tPL:Illumina",
+  "DnaSeq.readsetScatter.bwa_mem_picard_sort_sam.THREADS": 1,
+  "DnaSeq.readsetScatter.bwa_mem_picard_sort_sam.BUFFER": 1048576,
+  "DnaSeq.readsetScatter.bwa_mem_picard_sort_sam.RAM": "16G",
+  "DnaSeq.readsetScatter.bwa_mem_picard_sort_sam.MAX_REC": 3750000,
 
   "DnaSeq.gatk_indel_realigner.THREADS": 1,
   "DnaSeq.gatk_indel_realigner.BUFFER": 4194304,

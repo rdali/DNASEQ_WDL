@@ -5,114 +5,6 @@
 #-------------------------------------------------------------------------------
 
 
-#-------------------------------------------------------------------------------
-# Workflow
-#-------------------------------------------------------------------------------
-
-workflow DnaSeq {
-
-	## samples:
-	File ReadsetFile
-    Array[Array[File]] ReadsetFileContent = read_tsv(ReadsetFile)
-
-    ## Species VARS:
-    String SPECIES
-    String ASSEMBLY
-    File GENOME_FASTA
-    String BWA_INDX
-    File GENOME_DICT
-    File DB_SNP
-    File DB_SNP_COMMON
-    File DB_SFP
-    File IlluEXCLUSION
-
-	## ENV VARS:
-	String OUT_DIR
-	String TMPDIR
-
-	## MODULE VARS
-	String MOD_PICARD
-	String PICARD_HOME
-	String MOD_JAVA
-	String MOD_TRIMMOMATIC
-	String TRIMMOMATIC_JAR
-	String MOD_BWA
-	String MOD_SAMTOOLS
-	String MOD_SAMBAMBA
-	String MOD_BVATOOLS
-	String BVATOOLS_JAR
-	String MOD_GATK
-	String GATK_JAR
-	String MOD_R
-	String MOD_QUALIMAP
-	String MOD_FASTQC
-	String MOD_HTSLIB
-	String MOD_VT
-	String MOD_VCFTOOLS
-	String MOD_TABIX
-	String MOD_SNPEFF
-	String SNPEFF_HOME
-	String MOD_GEMINI
-	String MOD_PYTHON
-	String MOD_MUGQICTOOLS
-	String PYTHON_TOOLS
-	String MOD_MULTIQC
-
-	## loop over readset
-
-    scatter (ReadsetFileLine in ReadsetFileContent) {
-	    
-	    String READSET = ReadsetFileLine[1]
-
-
-	    if (length(ReadsetFileLine) == 13){
-
-			call picard_sam_to_fastq {
-				
-				input: 
-				READSET = READSET,
-				IN_BAM = ReadsetFileLine[12],
-				TMPDIR = TMPDIR,
-				MOD_JAVA = MOD_JAVA,
-				MOD_PICARD = MOD_PICARD,
-				PICARD_HOME = PICARD_HOME
-
-			}
-		}
-
-		call trimmomatic {
-			input: 
-			READSET = READSET,
-			IN_FQ1 = select_first([picard_sam_to_fastq.OUT_FQ1, ReadsetFileLine[10]]),
-			IN_FQ2 = select_first([picard_sam_to_fastq.OUT_FQ2, ReadsetFileLine[11]]),
-			ADAPTER1 = ReadsetFileLine[6],
-			ADAPTER2 = ReadsetFileLine[7],
-			MOD_JAVA = MOD_JAVA,
-			MOD_TRIMMOMATIC = MOD_TRIMMOMATIC,
-			TRIMMOMATIC_JAR = TRIMMOMATIC_JAR
-
-		}
-
-		call bwa_mem_picard_sort_sam {
-			input:
-			READSET = READSET,
-			IN_FQ1 = trimmomatic.OUT_FQ1_TRIM,
-			IN_FQ2 = trimmomatic.OUT_FQ2_TRIM,
-			BWA_INDX = BWA_INDX,
-			MOD_JAVA = MOD_JAVA,
-			MOD_BWA = MOD_BWA,
-			MOD_PICARD = MOD_PICARD,
-			PICARD_HOME = PICARD_HOME,
-			TMPDIR = TMPDIR
-		}
-
-
-	}
-	
-}
-
-
-
 
 #-------------------------------------------------------------------------------
 # Tasks
@@ -159,7 +51,7 @@ task trimmomatic {
 	File IN_FQ1
 	File IN_FQ2
 	String ADAPTER1
-	String ADAPTER2	
+	String ADAPTER2
 
 	String MOD_JAVA
 	String MOD_TRIMMOMATIC
@@ -203,7 +95,7 @@ output {
 	File OUT_FQ2_TRIM = "${READSET}.trim.pair2.fastq.gz"
 	File OUT_FQ2_TRIM_SINGLE = "${READSET}.trim.single2.fastq.gz"
 	File OUT_TRIM_LOG = "${READSET}.trim.log"
-	
+
 	}
 }
 
@@ -248,7 +140,7 @@ bwa mem \
 output {
 	File OUT_BAM="${READSET}.sorted.bam"
 	File OUT_BAI="${READSET}.sorted.bai"
-	
+
 	}
 }
 
@@ -256,11 +148,11 @@ output {
 
 task sambamba_merge_sam_files {
 
-    String SAMPLE
-    String PREFIX
-    Array[File] IN_BAMS
+	String SAMPLE
+	String PREFIX
+	Array[File] IN_BAMS
 
-    String MOD_SAMTOOLS
+	String MOD_SAMTOOLS
 	String MOD_SAMBAMBA
 
 command <<<
@@ -274,7 +166,7 @@ ${SAMPLE}.sorted.bam \
 output {
 
 	File OUT_MERGED_BAM="${SAMPLE}${PREFIX}"
-	
+
 	}
 }
 
@@ -300,7 +192,7 @@ task gatk_indel_realigner {
 	Int NT
 	Int NCT
 	Int MAX_REC
-	
+
 
 command <<<
 module purge && \
@@ -327,7 +219,7 @@ output {
 
 	File OUT_INTRVL="${SAMPLE}.sorted.realigned.${INTERVAL}.intervals"
 	File OUT_BAM="${SAMPLE}.sorted.realigned.${INTERVAL}.bam"
-	
+
 	}
 }
 
@@ -337,7 +229,7 @@ task fix_mate_by_coordinate {
 
 	String SAMPLE
 	File IN_BAM
-	
+
 	String MOD_JAVA
 	String MOD_BVATOOLS
 	String BVATOOLS_JAR
@@ -372,7 +264,7 @@ output {
 	File OUT_TMP_BAM="${SAMPLE}.matefixed.sorted.tmp.bam"
 	File OUT_BAM="${SAMPLE}.matefixed.sorted.bam"
 	File OUT_BAI="${SAMPLE}.matefixed.sorted.bai"
-	
+
 	}
 }
 
@@ -394,7 +286,7 @@ task picard_mark_duplicates {
 	Int MAX_REC
 
 
-	
+
 command <<<
 module purge && \
 module load ${MOD_JAVA} ${MOD_PICARD} && \
@@ -451,7 +343,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
 output {
 
 	File OUT_CLB_RPT="${SAMPLE}.sorted.dup.recalibration_report.grp"
-	
+
 	}
 }
 
@@ -463,7 +355,7 @@ task recalibration {
 
 	File GENOME_FASTA
 	File IN_CLB_RPT
-	
+
 	String MOD_JAVA
 	String MOD_GATK
 	String GATK_JAR
@@ -496,7 +388,7 @@ output {
 	File OUT_BAM="${SAMPLE}.sorted.dup.recal.bam"
 	File OUT_BAI="${SAMPLE}.sorted.dup.recal.bai"
 	File OUT_BAMBAI="${SAMPLE}.sorted.dup.recal.bam.bai"
-	
+
 	}
 }
 
@@ -519,7 +411,6 @@ task metrics_dna_picard_metrics_main {
 	String RAM
 	Int MAX_REC
 
-	
 
 command <<<
 module purge && \
@@ -542,7 +433,7 @@ output {
 	File OUT_CYCLE_PDF="${SAMPLE}.picard_metrics.all.metrics.quality_by_cycle.pdf"
 	File OUT_DIST="${SAMPLE}.picard_metrics.all.metrics.quality_distribution_metrics"
 	File OUT_DIST_PDF="${SAMPLE}.picard_metrics.all.metrics.quality_distribution.pdf"
-	
+
 	}
 }
 
@@ -552,7 +443,7 @@ task metrics_dna_picard_metrics_oxog {
 
 	String SAMPLE
 	File IN_BAM
-	
+
 	File DB_SNP
 	File GENOME_FASTA
 
@@ -584,7 +475,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
 output {
 
 	File OUT_OXOG="${SAMPLE}.picard_metrics.oxog_metrics.txt"
-	
+
 	}
 }
 
@@ -625,7 +516,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
 output {
 
 	File OUT_BIAS="${SAMPLE}.picard_metrics.qcbias_metrics.txt"
-	
+
 	}
 }
 
@@ -654,7 +545,7 @@ qualimap bamqc -nt 11 -gd ${SPECIES} \
 output {
 
 	File OUT_QUALIMAP="${SAMPLE}.qualimap.genome_results.txt"
-	
+
 	}
 }
 
@@ -663,7 +554,7 @@ task metrics_dna_sambamba_flagstat {
 
 	String SAMPLE
 	File IN_BAM
-	
+
 	String MOD_SAMBAMBA
 
 command <<<
@@ -676,7 +567,7 @@ sambamba flagstat -t 5 \
 
 output {
 	File OUT_FLAGSTAT="${SAMPLE}.flagstat"
-	
+
 	}
 }
 
@@ -685,7 +576,7 @@ task metrics_dna_fastqc {
 
 	String SAMPLE
 	File IN_BAM
-	
+
 	String ADAPTER1
 	String ADAPTER2
 
@@ -709,7 +600,7 @@ fastqc \
 
 output {
 	File OUT_FASTQC="${SAMPLE}.sorted.dup_fastqc.zip"
-	
+
 	}
 }
 
@@ -720,7 +611,7 @@ task gatk_callable_loci {
 	File IN_BAM
 
 	File GENOME_FASTA
-	
+
 	String MOD_JAVA
 	String MOD_GATK
 	String GATK_JAR
@@ -749,7 +640,7 @@ output {
 
 	File OUT_BED="${SAMPLE}.callable.bed"
 	File OUT_SUMMARY="${SAMPLE}.callable.summary.txt"
-	
+
 	}
 }
 
@@ -764,7 +655,7 @@ task extract_common_snp_freq {
 	String MOD_JAVA
 	String MOD_BVATOOLS
 	String BVATOOLS_JAR
-	
+
 	Int THREADS
 	Int BUFFER
 	String RAM
@@ -783,7 +674,7 @@ java -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} 
 output {
 
 	File OUT_COMMONSNPS="${SAMPLE}.commonSNPs.alleleFreq.csv"
-	
+
 	}
 }
 
@@ -793,15 +684,15 @@ task baf_plot {
 
 	String SAMPLE
 	File IN_COMMONSNPS
-	
+
 	File DB_SNP_COMMON
 	File GENOME_DICT
-	String CHR_EXCLUDE	
+	String CHR_EXCLUDE
 
 	String MOD_JAVA
 	String MOD_BVATOOLS
 	String BVATOOLS_JAR
-	
+
 	Int THREADS
 	Int BUFFER
 	String RAM
@@ -821,7 +712,7 @@ java -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} 
 output {
 
 	File OUT_BAF="${SAMPLE}.ratioBAF.png"
-	
+
 	}
 }
 
@@ -862,7 +753,7 @@ output {
 
 	File OUT_VCF_INTRVL="${SAMPLE}.${INTERVAL}.hc.g.vcf.gz"
 	File OUT_TBI_INTRVL="${SAMPLE}.${INTERVAL}.hc.g.vcf.gz.tbi"
-	
+
 	}
 }
 
@@ -871,7 +762,7 @@ output {
 task merge_and_call_individual_gvcf_merge {
 
 	String SAMPLE
-	Array[File] IN_VCFS_INTRVL	
+	Array[File] IN_VCFS_INTRVL
 
 	File GENOME_FASTA
 
@@ -897,7 +788,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
 output {
 
 	File OUT_VCF_G="${SAMPLE}.hc.g.vcf.gz"
-	
+
 	}
 }
 
@@ -906,7 +797,7 @@ task merge_and_call_individual_gvcf_calls {
 
 	String SAMPLE
 	File IN_VCF_G
-	
+
 	File GENOME_FASTA
 	String INTERVAL
 
@@ -934,12 +825,12 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
 output {
 
 	File OUT_VCF="${SAMPLE}.hc.vcf.gz"
-	
+
 	}
 }
 
 task combine_gvcf {
-	
+
 	Array[File] IN_VCFS_G
 	Array[String] CHR_EXCLUDE
 
@@ -962,15 +853,15 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREA
   --analysis_type CombineGVCFs  \
   --disable_auto_index_creation_and_locking_when_reading_rods \
   --reference_sequence ${GENOME_FASTA} \
-    (${sep=" --variant " IN_VCFS_G})
+	(${sep=" --variant " IN_VCFS_G})
   --out allSamples.${INTERVAL}.hc.g.vcf.bgz \
-    (${sep=" --excludeIntervals " CHR_EXCLUDE})
+	(${sep=" --excludeIntervals " CHR_EXCLUDE})
 	>>>
 
 output {
 
 	File OUT_VCF_G="allSamples.${INTERVAL}.hc.g.vcf.bgz"
-	
+
 	}
 }
 
@@ -989,7 +880,7 @@ task merge_and_call_combined_gvcf_merges {
 	String TMPDIR
 	Int THREADS
 	Int BUFFER
-	String RAM	
+	String RAM
 
 command <<<
 module purge && \
@@ -1004,7 +895,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
 output {
 
 	File OUT_VCF_G="allSamples.hc.g.vcf.gz"
-	
+
 	}
 }
 
@@ -1023,9 +914,9 @@ task merge_and_call_combined_gvcf_calls {
 	String TMPDIR
 	Int THREADS
 	Int BUFFER
-	String RAM	
+	String RAM
 
-	
+
 command <<<
 module purge && \
 module load ${MOD_JAVA} ${MOD_GATK} && \
@@ -1040,7 +931,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
 output {
 
 	File OUT_VCF_ALL="allSamples.hc.vcf.gz"
-	
+
 	}
 }
 
@@ -1063,8 +954,8 @@ task variant_recalibrator_prep {
 	Int THREADS
 	Int BUFFER
 	String RAM
-	Int NT	
-	
+	Int NT
+
 
 command <<<
 module purge && \
@@ -1097,12 +988,12 @@ output {
 	File OUT_INDL_RCL="allSamples.hc.indels.recal"
 	File OUT_INDL_TRNCH="allSamples.hc.indels.tranches"
 	File OUT_INDL_R="allSamples.hc.indels.R"
-	
+
 	}
 }
 
 task variant_recalibrator_exec {
-	
+
 	File IN_VCF_ALL
 	File IN_SNP_RCL
 	File IN_SNP_TRNCH
@@ -1152,7 +1043,7 @@ output {
 
 	File OUT_VQSR_RAW="allSamples.hc.snps_raw_indels.vqsr.vcf.gz"
 	File OUT_VQSR="allSamples.hc.vqsr.vcf"
-	
+
 	}
 }
 
@@ -1166,13 +1057,13 @@ task haplotype_caller_decompose_and_normalize {
 
 	String MOD_HTSLIB
 	String MOD_VT
-	
+
 
 command <<<
 module purge && \
 module load ${MOD_HTSLIB} ${MOD_VT} && \
 zless variants/${IN_VQSR} | sed 's/ID=AD,Number=./ID=AD,Number=R/' | vt decompose -s - | vt normalize -r ${GENOME_FASTA} - \
-          | \
+		  | \
 bgzip -cf \
  > \
 allSamples.hc.vqsr.vt.vcf.gz && tabix -pvcf allSamples.hc.vqsr.vt.vcf.gz \
@@ -1182,7 +1073,7 @@ allSamples.hc.vqsr.vt.vcf.gz && tabix -pvcf allSamples.hc.vqsr.vt.vcf.gz \
 output {
 
 	File OUT_VT="allSamples.hc.vqsr.vt.vcf.gz"
-	
+
 	}
 }
 
@@ -1193,7 +1084,7 @@ task haplotype_caller_flag_mappability {
 	File IN_VT
 
 	File IlluEXCLUSION
-	
+
 	String MOD_VCFTOOLS
 	String MOD_TABIX
 	String MOD_HTSLIB
@@ -1209,13 +1100,13 @@ vcf-annotate \
 bgzip -cf \
  > \
 allSamples.hc.vqsr.vt.mil.vcf.gz && tabix -pvcf allSamples.hc.vqsr.vt.mil.vcf.gz \
-        
+
 	>>>
 
 output {
 
 	File OUT_MIL="allSamples.hc.vqsr.vt.mil.vcf.gz"
-	
+
 	}
 }
 
@@ -1236,7 +1127,7 @@ task haplotype_caller_snp_id_annotation {
 	String TMPDIR
 	Int THREADS
 	String RAM
-	
+
 
 command <<<
 module purge && \
@@ -1247,13 +1138,13 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Xmx${RAM} -jar
 bgzip -cf \
  > \
 allSamples.hc.vqsr.vt.mil.snpId.vcf.gz && tabix -pvcf allSamples.hc.vqsr.vt.mil.snpId.vcf.gz \
-        
+
 	>>>
 
 output {
 
 	File OUT_SNPID="allSamples.hc.vqsr.vt.mil.snpId.vcf.gz"
-	
+
 	}
 }
 
@@ -1264,7 +1155,7 @@ task haplotype_caller_snp_effect {
 	File IN_SNPID
 
 	String ASSEMBLY
-	
+
 	String MOD_JAVA
 	String MOD_SNPEFF
 	String SNPEFF_HOME
@@ -1292,14 +1183,14 @@ bgzip -cf \
  \
  allSamples.hc.vqsr.vt.mil.snpId.snpeff.vcf > \
  allSamples.hc.vqsr.vt.mil.snpId.snpeff.vcf.gz && tabix -pvcf allSamples.hc.vqsr.vt.mil.snpId.snpeff.vcf.gz \
-        
+
 	>>>
 
 output {
 	File OUT_SNPEFF="allSamples.hc.vqsr.vt.mil.snpId.snpeff.vcf"
 	File OUT_STATS="allSamples.hc.vqsr.vt.mil.snpId.snpeff.vcf.stats.csv"
 	File OUT_ZIPPED="allSamples.hc.vqsr.vt.mil.snpId.snpeff.vcf.gz"
-	
+
 	}
 }
 
@@ -1333,14 +1224,13 @@ bgzip -cf \
  \
  allSamples.hc.vqsr.vt.mil.snpId.snpeff.dbnsfp.vcf > \
  allSamples.hc.vqsr.vt.mil.snpId.snpeff.dbnsfp.vcf.gz && tabix -pvcf allSamples.hc.vqsr.vt.mil.snpId.snpeff.dbnsfp.vcf.gz \
-        
+
 	>>>
 
 output {
 
 	File OUT_SFP="allSamples.hc.vqsr.vt.mil.snpId.snpeff.dbnsfp.vcf"
 	File OUT_ZIPPED="allSamples.hc.vqsr.vt.mil.snpId.snpeff.dbnsfp.vcf.gz"
-	
 	}
 }
 
@@ -1368,7 +1258,7 @@ gemini load -v ${IN_ZIPPED} \
 output {
 
 	File OUT_GEMINI="allSamples.gemini.db"
-	
+
 	}
 }
 
@@ -1398,14 +1288,14 @@ python ${PYTHON_TOOLS}/vcfStats.py \
 output {
 
 	File OUT_CHGRATE="allSamples.hc.vqsr.vt.mil.snpId.snpeff.dbnsfp.vcf.part_changeRate.tsv"
-	
+
 	}
 }
 
 
 
 task run_multiqc {
-	
+
 	Array[File] METRICS
 	## Need to make it run at the very end
 	String MOD_MULTIQC
@@ -1419,7 +1309,7 @@ multiqc .
 output {
 
 	File OUT_MULTIQC="multiqc_report"
-	
+
 	}
 }
 
@@ -1430,7 +1320,7 @@ task cram_output {
 
 	String SAMPLE
 	File IN_BAM
-	
+
 	File GENOME_FASTA
 
 	String MOD_SAMTOOLS
@@ -1446,17 +1336,9 @@ samtools view -h -T ${GENOME_FASTA} -C \
 output {
 
 	File OUT_CRAM="${SAMPLE}.sorted.dup.recal.cram"
-	
+
 	}
 }
-
-
-
-
-
-
-
-
 
 
 

@@ -23,8 +23,16 @@ A test environment has been set up on Beluga at:
 `salloc -N 1 -n 1 --mem 10Gb --account=rrg-bourqueg-ad --time=2:00:00`
 `module load mugqic/java`
 
+## make json input from GenPipes readset file:
+
+`python readset2json.py -r readset.dnaseqFQBAM.txt -n DnaSeq`
+
+## merge the parameter json with the readset json:
+
+`jq -s '.[0] * .[1]' dnaseq_genpipes.json readset.dnaseqFQBAM.json > dnaseq_genpipes.dnaseqFQBAM.json`
+
 ## validate wdl script:
-`java -jar $wdltool validate test.wdl`
+`java -jar $cromwell run dnaseq_genpipes.wdl --inputs dnaseq_genpipes.dnaseqFQBAM.json `
 
 ## run command:
 `java -jar $cromwell run test.wdl`
