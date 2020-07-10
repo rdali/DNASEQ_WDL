@@ -7,7 +7,7 @@
 
 
 #-------------------------------------------------------------------------------
-# Tasks
+# DnaSeq Tasks
 #-------------------------------------------------------------------------------
 
 
@@ -160,7 +160,7 @@ module purge && \
 module load ${MOD_SAMTOOLS} ${MOD_SAMBAMBA} && \
 sambamba merge -t 7 \
 ${SAMPLE}.sorted.bam \
-(${sep=" " IN_BAMS})
+${sep=" " IN_BAMS}
 	>>>
 
 output {
@@ -176,7 +176,9 @@ task gatk_indel_realigner {
 
 	String SAMPLE
 	File IN_BAM
-	String INTERVAL
+	Array[String]? INTERVALS
+	Array[String]? EXCLUDE
+	String INTERVAL_NAME
 
 	File GENOME_FASTA
 	File G1000
@@ -202,23 +204,25 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREA
   --reference_sequence ${GENOME_FASTA} \
   --input_file ${IN_BAM} \
   --known ${G1000} \
-  --out ${SAMPLE}.sorted.realigned.${INTERVAL}.intervals \
-  --intervals ${INTERVAL} && \
-java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
+  --out ${SAMPLE}.sorted.realigned.${INTERVAL_NAME}.intervals \
+  ${true=' --interval ' false='' defined(INTERVALS)}${sep=' --interval ' INTERVALS} \
+  ${true=' --excludeIntervals ' false='' defined(EXCLUDE)}${sep=' --excludeIntervals ' EXCLUDE}  && \
+	java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
   --analysis_type IndelRealigner -nt ${NT} -nct ${NT} \
   --reference_sequence ${GENOME_FASTA} \
   --input_file ${IN_BAM} \
-  --targetIntervals ${SAMPLE}.sorted.realigned.${INTERVAL}.intervals \
+  --targetIntervals ${SAMPLE}.sorted.realigned.${INTERVAL_NAME}.intervals \
   --knownAlleles ${G1000} \
-  --out ${SAMPLE}.sorted.realigned.${INTERVAL}.bam \
-  --intervals ${INTERVAL} \
+  --out ${SAMPLE}.sorted.realigned.${INTERVAL_NAME}.bam \
+  ${true=' --interval ' false='' defined(INTERVALS)}${sep=' --interval ' INTERVALS} \
+  ${true=' --excludeIntervals ' false='' defined(EXCLUDE)}${sep=' --excludeIntervals ' EXCLUDE} \
   --maxReadsInMemory ${MAX_REC}
 	>>>
 
 output {
 
-	File OUT_INTRVL="${SAMPLE}.sorted.realigned.${INTERVAL}.intervals"
-	File OUT_BAM="${SAMPLE}.sorted.realigned.${INTERVAL}.bam"
+	File OUT_INTRVL="${SAMPLE}.sorted.realigned.${INTERVAL_NAME}.intervals"
+	File OUT_BAM="${SAMPLE}.sorted.realigned.${INTERVAL_NAME}.bam"
 
 	}
 }
@@ -336,7 +340,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
   -nt 1 --num_cpu_threads_per_data_thread ${CPUTHREADS} \
   --input_file ${IN_BAM} \
   --reference_sequence ${GENOME_FASTA} \
-  (${sep=" --knownSites " KNOWNSITES})
+  ${sep=" --knownSites " KNOWNSITES} \
   --out ${SAMPLE}.sorted.dup.recalibration_report.grp
 	>>>
 
@@ -724,7 +728,8 @@ task gatk_haplotype_caller {
 	Array[String] CHR_EXCLUDE
 
 	File GENOME_FASTA
-	String INTERVAL
+	String INTERVAL_NAME
+	Array[String] INTERVALS
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -744,15 +749,15 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
   --disable_auto_index_creation_and_locking_when_reading_rods \
   --reference_sequence ${GENOME_FASTA} \
   --input_file ${IN_BAM} \
-  --out ${SAMPLE}.${INTERVAL}.hc.g.vcf.gz \
-  --intervals ${INTERVAL}
-  (${sep=" --excludeIntervals " CHR_EXCLUDE})
+  --out ${SAMPLE}.${INTERVAL_NAME}.hc.g.vcf.gz \
+  ${sep=" --intervals " INTERVALS} \
+  ${sep=" --excludeIntervals " CHR_EXCLUDE}
 	>>>
 
 output {
 
-	File OUT_VCF_INTRVL="${SAMPLE}.${INTERVAL}.hc.g.vcf.gz"
-	File OUT_TBI_INTRVL="${SAMPLE}.${INTERVAL}.hc.g.vcf.gz.tbi"
+	File OUT_VCF_INTRVL="${SAMPLE}.${INTERVAL_NAME}.hc.g.vcf.gz"
+	File OUT_TBI_INTRVL="${SAMPLE}.${INTERVAL_NAME}.hc.g.vcf.gz.tbi"
 
 	}
 }
@@ -781,7 +786,7 @@ module load ${MOD_JAVA} ${MOD_GATK} && \
 java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -cp ${GATK_JAR} \
   org.broadinstitute.gatk.tools.CatVariants  \
   --reference ${GENOME_FASTA} \
-  (${sep=" --variant " IN_VCFS_INTRVL})
+  ${sep=" --variant " IN_VCFS_INTRVL} \
   --outputFile ${SAMPLE}.hc.g.vcf.gz
 	>>>
 
@@ -853,9 +858,9 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREA
   --analysis_type CombineGVCFs  \
   --disable_auto_index_creation_and_locking_when_reading_rods \
   --reference_sequence ${GENOME_FASTA} \
-	(${sep=" --variant " IN_VCFS_G})
+	${sep=" --variant " IN_VCFS_G} \
   --out allSamples.${INTERVAL}.hc.g.vcf.bgz \
-	(${sep=" --excludeIntervals " CHR_EXCLUDE})
+	${sep=" --excludeIntervals " CHR_EXCLUDE}
 	>>>
 
 output {
@@ -888,7 +893,7 @@ module load ${MOD_JAVA} ${MOD_GATK} && \
 java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -cp ${GATK_JAR} \
   org.broadinstitute.gatk.tools.CatVariants \
   --reference ${GENOME_FASTA} \
-  (${sep=" --variant " VCFS})
+  ${sep=" --variant " VCFS} \
   --outputFile allSamples.hc.g.vcf.gz
 	>>>
 
@@ -1342,3 +1347,27 @@ output {
 
 
 
+#-------------------------------------------------------------------------------
+# General Tasks
+#-------------------------------------------------------------------------------
+
+
+
+task concat_arrays {
+
+    Array[File] A
+    Array[File] B
+
+    command {
+
+        cat write_lines(A)
+        cat write_lines(B)
+
+    }
+
+    output {
+
+        Array[File] OUT = read_lines(stdout())
+
+    }
+}

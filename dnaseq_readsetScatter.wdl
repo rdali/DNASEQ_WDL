@@ -9,8 +9,8 @@ import "dnaseq_tasks.wdl"
 
 workflow readsetScatter {
 
-  String sample
-  Array[Object] readsets
+  String SAMPLE
+  Array[Object] READSETS
   
   String BWA_INDX
 
@@ -23,7 +23,7 @@ workflow readsetScatter {
   String MOD_BWA
 
 
-  scatter(readset in readsets){
+  scatter(readset in READSETS){
 
     if (readset.bam != "None"){
 
