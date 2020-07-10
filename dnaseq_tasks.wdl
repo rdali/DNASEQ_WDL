@@ -180,7 +180,7 @@ task gatk_indel_realigner {
 	Array[String]? EXCLUDE
 	String INTERVAL_NAME
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 	File G1000
 
 	String MOD_JAVA
@@ -205,7 +205,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREA
   --input_file ${IN_BAM} \
   --known ${G1000} \
   --out ${SAMPLE}.sorted.realigned.${INTERVAL_NAME}.intervals \
-  ${true=' --interval ' false='' defined(INTERVALS)}${sep=' --interval ' INTERVALS} \
+  ${true=' --intervals ' false='' defined(INTERVALS)}${sep=' --intervals ' INTERVALS} \
   ${true=' --excludeIntervals ' false='' defined(EXCLUDE)}${sep=' --excludeIntervals ' EXCLUDE}  && \
 	java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
   --analysis_type IndelRealigner -nt ${NT} -nct ${NT} \
@@ -214,7 +214,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREA
   --targetIntervals ${SAMPLE}.sorted.realigned.${INTERVAL_NAME}.intervals \
   --knownAlleles ${G1000} \
   --out ${SAMPLE}.sorted.realigned.${INTERVAL_NAME}.bam \
-  ${true=' --interval ' false='' defined(INTERVALS)}${sep=' --interval ' INTERVALS} \
+  ${true=' --intervals ' false='' defined(INTERVALS)}${sep=' --intervals ' INTERVALS} \
   ${true=' --excludeIntervals ' false='' defined(EXCLUDE)}${sep=' --excludeIntervals ' EXCLUDE} \
   --maxReadsInMemory ${MAX_REC}
 	>>>
@@ -315,7 +315,7 @@ task recalibration_report {
 
 	String SAMPLE
 	File IN_BAM
-	File GENOME_FASTA
+	String GENOME_FASTA
 	Array[File] KNOWNSITES
 
 	String MOD_JAVA
@@ -357,7 +357,7 @@ task recalibration {
 	String SAMPLE
 	File IN_BAM
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 	File IN_CLB_RPT
 
 	String MOD_JAVA
@@ -402,7 +402,7 @@ task metrics_dna_picard_metrics_main {
 	String SAMPLE
 	File IN_BAM
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 
 	String MOD_JAVA
 	String MOD_PICARD
@@ -449,7 +449,7 @@ task metrics_dna_picard_metrics_oxog {
 	File IN_BAM
 
 	File DB_SNP
-	File GENOME_FASTA
+	String GENOME_FASTA
 
 	String MOD_JAVA
 	String MOD_PICARD
@@ -490,7 +490,7 @@ task metrics_dna_picard_metrics_biasQc {
 	String SAMPLE
 	File IN_BAM
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 
 	String MOD_JAVA
 	String MOD_PICARD
@@ -614,7 +614,7 @@ task gatk_callable_loci {
 	String SAMPLE
 	File IN_BAM
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -727,7 +727,7 @@ task gatk_haplotype_caller {
 	File IN_BAM
 	Array[String] CHR_EXCLUDE
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 	String INTERVAL_NAME
 	Array[String] INTERVALS
 
@@ -769,7 +769,7 @@ task merge_and_call_individual_gvcf_merge {
 	String SAMPLE
 	Array[File] IN_VCFS_INTRVL
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -803,7 +803,7 @@ task merge_and_call_individual_gvcf_calls {
 	String SAMPLE
 	File IN_VCF_G
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 	String INTERVAL
 
 	String MOD_JAVA
@@ -839,7 +839,7 @@ task combine_gvcf {
 	Array[File] IN_VCFS_G
 	Array[String] CHR_EXCLUDE
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 	String INTERVAL
 
 	String MOD_JAVA
@@ -876,7 +876,7 @@ task merge_and_call_combined_gvcf_merges {
 
 	Array[File] VCFS
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -910,7 +910,7 @@ task merge_and_call_combined_gvcf_calls {
 
 	File IN_VCF_G
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -945,7 +945,7 @@ task variant_recalibrator_prep {
 
 	File IN_VCF_ALL
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 
 	String RSRC_SNP
 	String RSCR_INDL
@@ -1007,7 +1007,7 @@ task variant_recalibrator_exec {
 	File IN_INDL_TRNCH
 	File IN_INDL_R
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -1058,7 +1058,7 @@ output {
 task haplotype_caller_decompose_and_normalize {
 
 	File IN_VQSR
-	File GENOME_FASTA
+	String GENOME_FASTA
 
 	String MOD_HTSLIB
 	String MOD_VT
@@ -1326,7 +1326,7 @@ task cram_output {
 	String SAMPLE
 	File IN_BAM
 
-	File GENOME_FASTA
+	String GENOME_FASTA
 
 	String MOD_SAMTOOLS
 
