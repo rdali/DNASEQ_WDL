@@ -181,7 +181,7 @@ task gatk_indel_realigner {
 	String INTERVAL_NAME
 
 	String GENOME_FASTA
-	File G1000
+	String G1000
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -316,7 +316,7 @@ task recalibration_report {
 	String SAMPLE
 	File IN_BAM
 	String GENOME_FASTA
-	Array[File] KNOWNSITES
+	Array[String] KNOWNSITES
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -448,7 +448,7 @@ task metrics_dna_picard_metrics_oxog {
 	String SAMPLE
 	File IN_BAM
 
-	File DB_SNP
+	String DB_SNP
 	String GENOME_FASTA
 
 	String MOD_JAVA
@@ -654,7 +654,7 @@ task extract_common_snp_freq {
 	String SAMPLE
 	File IN_BAM
 
-	File DB_SNP_COMMON
+	String DB_SNP_COMMON
 
 	String MOD_JAVA
 	String MOD_BVATOOLS
@@ -689,8 +689,8 @@ task baf_plot {
 	String SAMPLE
 	File IN_COMMONSNPS
 
-	File DB_SNP_COMMON
-	File GENOME_DICT
+	String DB_SNP_COMMON
+	String GENOME_DICT
 	String CHR_EXCLUDE
 
 	String MOD_JAVA
