@@ -176,6 +176,7 @@ task gatk_indel_realigner {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 	Array[String]? INTERVALS
 	Array[String]? EXCLUDE
 	String INTERVAL_NAME
