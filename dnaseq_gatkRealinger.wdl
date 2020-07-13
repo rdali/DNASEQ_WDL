@@ -63,19 +63,19 @@ workflow gatkRealingerScatter {
 
 
 
-    call dnaseq_tasks.concat_arrays as concat_intvls {
+    call dnaseq_tasks.array_extend_file as concat_intvls {
 
     	input:
-    	A = gatk_indel_realigner_INCLD.OUT_INTRVL,
-    	B = [gatk_indel_realigner_EXCLD.OUT_INTRVL]
+    	list1 = gatk_indel_realigner_INCLD.OUT_INTRVL,
+    	list2 = [gatk_indel_realigner_EXCLD.OUT_INTRVL]
 
     }
 
-    call dnaseq_tasks.concat_arrays as concat_bams {
+    call dnaseq_tasks.array_extend_file as concat_bams {
 
     	input:
-    	A = gatk_indel_realigner_INCLD.OUT_BAM,
-    	B = [gatk_indel_realigner_EXCLD.OUT_BAM]
+    	list1 = gatk_indel_realigner_INCLD.OUT_BAM,
+    	list2 = [gatk_indel_realigner_EXCLD.OUT_BAM]
     	
     }
 

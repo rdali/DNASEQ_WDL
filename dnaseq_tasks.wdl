@@ -234,6 +234,7 @@ task fix_mate_by_coordinate {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String MOD_JAVA
 	String MOD_BVATOOLS
@@ -279,6 +280,7 @@ task picard_mark_duplicates {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String MOD_JAVA
 	String MOD_PICARD
@@ -316,6 +318,8 @@ task recalibration_report {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
+
 	String GENOME_FASTA
 	Array[String] KNOWNSITES
 
@@ -357,6 +361,7 @@ task recalibration {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String GENOME_FASTA
 	File IN_CLB_RPT
@@ -402,6 +407,7 @@ task metrics_dna_picard_metrics_main {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String GENOME_FASTA
 
@@ -448,6 +454,7 @@ task metrics_dna_picard_metrics_oxog {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String DB_SNP
 	String GENOME_FASTA
@@ -490,6 +497,7 @@ task metrics_dna_picard_metrics_biasQc {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String GENOME_FASTA
 
@@ -530,6 +538,7 @@ task metrics_dna_sample_qualimap {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String SPECIES
 
@@ -542,8 +551,9 @@ task metrics_dna_sample_qualimap {
 command <<<
 module purge && \
 module load ${MOD_JAVA} ${MOD_QUALIMAP} && \
-qualimap bamqc -nt 11 -gd ${SPECIES} \
-  -bam ${IN_BAM} -outdir ${SAMPLE} \
+qualimap bamqc -nt 11 \
+  -gd ${SPECIES} \
+  -bam ${IN_BAM} \
   --java-mem-size=${RAM}
 	>>>
 
@@ -559,6 +569,7 @@ task metrics_dna_sambamba_flagstat {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String MOD_SAMBAMBA
 
@@ -581,6 +592,7 @@ task metrics_dna_fastqc {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String ADAPTER1
 	String ADAPTER2
@@ -596,7 +608,6 @@ module load ${MOD_FASTQC} ${MOD_JAVA} && \
 >Adapter2	${ADAPTER2}
 END` && \
 fastqc \
-  -o ${SAMPLE}.fastqc \
   -t 3 \
   -a adapter.tsv \
   -f bam \
@@ -614,6 +625,7 @@ task gatk_callable_loci {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String GENOME_FASTA
 
@@ -654,6 +666,7 @@ task extract_common_snp_freq {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String DB_SNP_COMMON
 
@@ -726,6 +739,7 @@ task gatk_haplotype_caller {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String GENOME_FASTA
 	String INTERVAL_NAME
@@ -1326,6 +1340,7 @@ task cram_output {
 
 	String SAMPLE
 	File IN_BAM
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String GENOME_FASTA
 
@@ -1354,21 +1369,64 @@ output {
 
 
 
-task concat_arrays {
+task array_append {
 
-    Array[File] A
-    Array[File] B
+        Array[String] list
+        String extraValue
 
-    command {
+    command <<<
+        python <<OEF
+        for x in ['${sep="','" list}']:
+            print(x)
+        print('${extraValue}')
+        OEF
+    >>>
 
-        cat write_lines(A)
-        cat write_lines(B)
+    output {
 
+        Array[String] OUT = read_lines(stdout())
     }
+}
+
+
+task array_extend {
+
+        Array[String] list1
+        Array[String] list2
+
+    command <<<
+        python <<OEF
+        for x in ['${sep="','" list1}']:
+            print(x)
+        for y in ['${sep="','" list2}']:
+            print(y)
+        OEF
+    >>>
+
+    output {
+
+        Array[String] OUT = read_lines(stdout())
+    }
+}
+
+
+
+task array_extend_file {
+
+        Array[File] list1
+        Array[File] list2
+
+    command <<<
+        python <<OEF
+        for x in ['${sep="','" list1}']:
+            print(x)
+        for y in ['${sep="','" list2}']:
+            print(y)
+        OEF
+    >>>
 
     output {
 
         Array[File] OUT = read_lines(stdout())
-
     }
 }

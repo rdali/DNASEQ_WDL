@@ -33,7 +33,7 @@
   "DnaSeq.GATK_JAR": "/cvmfs/soft.mugqic/CentOS6/software/GenomeAnalysisTK/GenomeAnalysisTK-3.8/GenomeAnalysisTK.jar",
   "DnaSeq.MOD_R": "mugqic/R_Bioconductor/3.4.1_3.5",
   "DnaSeq.MOD_QUALIMAP": "mugqic/qualimap/2.2.1",
-  "DnaSeq.MOD_FASTQC": "mugqic/fastqc/0.11.51",
+  "DnaSeq.MOD_FASTQC": "mugqic/fastqc/0.11.5",
   "DnaSeq.MOD_HTSLIB": "mugqic/htslib/1.8",
   "DnaSeq.MOD_VT": "mugqic/vt/0.57",
   "DnaSeq.MOD_VCFTOOLS": "mugqic/vcftools/0.1.14",
