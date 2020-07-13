@@ -341,7 +341,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
   -nt 1 --num_cpu_threads_per_data_thread ${CPUTHREADS} \
   --input_file ${IN_BAM} \
   --reference_sequence ${GENOME_FASTA} \
-  ${sep=" --knownSites " KNOWNSITES} \
+  --knownSites ${sep=" --knownSites " KNOWNSITES} \
   --out ${SAMPLE}.sorted.dup.recalibration_report.grp
 	>>>
 
@@ -692,12 +692,12 @@ task baf_plot {
 
 	String DB_SNP_COMMON
 	String GENOME_DICT
-	String CHR_EXCLUDE
 
 	String MOD_JAVA
 	String MOD_BVATOOLS
 	String BVATOOLS_JAR
 
+	String CHR_EXCLUDE
 	Int THREADS
 	Int BUFFER
 	String RAM
@@ -726,11 +726,11 @@ task gatk_haplotype_caller {
 
 	String SAMPLE
 	File IN_BAM
-	Array[String] CHR_EXCLUDE
 
 	String GENOME_FASTA
 	String INTERVAL_NAME
-	Array[String] INTERVALS
+	Array[String]? INTERVALS
+	Array[String]? CHR_EXCLUDE
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -751,8 +751,8 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
   --reference_sequence ${GENOME_FASTA} \
   --input_file ${IN_BAM} \
   --out ${SAMPLE}.${INTERVAL_NAME}.hc.g.vcf.gz \
-  ${sep=" --intervals " INTERVALS} \
-  ${sep=" --excludeIntervals " CHR_EXCLUDE}
+  ${true=' --intervals ' false='' defined(INTERVALS)}${sep=' --intervals ' INTERVALS} \
+  ${true=' --excludeIntervals ' false='' defined(CHR_EXCLUDE)}${sep=' --excludeIntervals ' CHR_EXCLUDE}
 	>>>
 
 output {
@@ -787,7 +787,7 @@ module load ${MOD_JAVA} ${MOD_GATK} && \
 java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -cp ${GATK_JAR} \
   org.broadinstitute.gatk.tools.CatVariants  \
   --reference ${GENOME_FASTA} \
-  ${sep=" --variant " IN_VCFS_INTRVL} \
+  --variant ${sep=" --variant " IN_VCFS_INTRVL} \
   --outputFile ${SAMPLE}.hc.g.vcf.gz
 	>>>
 
@@ -859,9 +859,9 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREA
   --analysis_type CombineGVCFs  \
   --disable_auto_index_creation_and_locking_when_reading_rods \
   --reference_sequence ${GENOME_FASTA} \
-	${sep=" --variant " IN_VCFS_G} \
+  --variant ${sep=" --variant " IN_VCFS_G} \
   --out allSamples.${INTERVAL}.hc.g.vcf.bgz \
-	${sep=" --excludeIntervals " CHR_EXCLUDE}
+  --excludeIntervals ${sep=" --excludeIntervals " CHR_EXCLUDE}
 	>>>
 
 output {
@@ -894,7 +894,7 @@ module load ${MOD_JAVA} ${MOD_GATK} && \
 java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -cp ${GATK_JAR} \
   org.broadinstitute.gatk.tools.CatVariants \
   --reference ${GENOME_FASTA} \
-  ${sep=" --variant " VCFS} \
+  --variant ${sep=" --variant " VCFS} \
   --outputFile allSamples.hc.g.vcf.gz
 	>>>
 

@@ -1,6 +1,6 @@
 # dnaseq_wdl
 
-This repo follows the progression of transfering the GenPipes' DNASeq mugqic protocol into WDL to use on cloud infrastructure.
+This repo follows the progress of transfering the GenPipes' DNASeq mugqic protocol into WDL to use on cloud infrastructure.
 
 
 A WDL scheduler has been added to GenPipes on the *wdl_scheduler* branch
@@ -20,7 +20,7 @@ A test environment has been set up on Beluga at:
 
 
 ### need interactive node & Java:
-`salloc -N 1 -n 1 --mem 10Gb --account=rrg-bourqueg-ad --time=2:00:00`
+`salloc -N 1 -n 1 --mem 10Gb --account=rrg-bourqueg-ad --time=2:00:00`  
 `module load mugqic/java`
 
 ## make json input from GenPipes readset file:
@@ -32,10 +32,11 @@ A test environment has been set up on Beluga at:
 `jq -s '.[0] * .[1]' dnaseq_genpipes.json readset.dnaseqFQBAM.json > dnaseq_genpipes.dnaseqFQBAM.json`
 
 ## validate wdl script:
-`java -jar $cromwell run dnaseq_genpipes.wdl --inputs dnaseq_genpipes.dnaseqFQBAM.json `
+`java -jar $wdltool validate test.wdl`
 
 ## run command:
-`java -jar $cromwell run test.wdl`
+`java -jar $cromwell run dnaseq_genpipes.wdl --inputs dnaseq_genpipes.dnaseqFQBAM.json `
+
 
 Where:  
 wdltool=/home/rdali/tools/womtool-51.jar  

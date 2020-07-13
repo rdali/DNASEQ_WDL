@@ -25,6 +25,10 @@ workflow readsetScatter {
 
   scatter(readset in READSETS){
 
+      String ADAPTER1 = readset.adapter1
+      String ADAPTER2 = readset.adapter2
+
+
     if (readset.bam != "None"){
 
       call dnaseq_tasks.picard_sam_to_fastq {
@@ -73,6 +77,8 @@ workflow readsetScatter {
     output {
 
       Array[File] OUT_BAMs = bwa_mem_picard_sort_sam.OUT_BAM
+      Array[String] ADPTER1 = ADAPTER1
+      Array[String] ADPTER2 = ADAPTER2
 
     }
 
