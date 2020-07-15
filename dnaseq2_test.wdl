@@ -76,61 +76,10 @@ workflow DnaSeq {
 
 
 	String IN_BAM = "/home/rdali/projects/rrg-bourqueg-ad/rdali/C3G/projects/dnaseqTestSet/alignment/S2/S2.sorted.dup.recal.bam"
-
+	String IN_VCF_G = "/home/rdali/projects/rrg-bourqueg-ad/rdali/C3G/projects/dnaseqTestSet/alignment/S2/S2.hc.g.vcf.gz"
 
 	
 
-	call gatkCallerScatter.gatkCallerScatter {
-
-		input:
-		SAMPLE = sample.sample,
-		#IN_BAM = recalibration.OUT_BAM,
-		IN_BAM = IN_BAM,
-		INTERVALS = CHRS,
-		CHR_EXCLUDE = CHR_EXCLUDE,
-		GENOME_FASTA = GENOME_FASTA,
-		G1000 = G1000,
-
-		TMPDIR = TMPDIR,
-		MOD_JAVA = MOD_JAVA,
-		MOD_GATK = MOD_GATK,
-		GATK_JAR = GATK_JAR
-
-		#output:
-#      Array[File] OUT_VCFs
-#      Array[File] OUT_TBIs
-
-
-	}
-
-	call dnaseq_tasks.merge_and_call_individual_gvcf_merge {
-
-		input:
-		SAMPLE = sample.sample,
-		IN_VCFS_INTRVL = gatkCallerScatter.OUT_VCFs,
-		GENOME_FASTA = GENOME_FASTA,
-		TMPDIR = TMPDIR,
-		MOD_JAVA = MOD_JAVA,
-		MOD_GATK = MOD_GATK,
-		GATK_JAR = GATK_JAR
-
-
-	}
-
-	call dnaseq_tasks.merge_and_call_individual_gvcf_calls {
-
-		input:
-		SAMPLE = sample.sample,
-		IN_VCF_G = merge_and_call_individual_gvcf_merge.OUT_VCF_G,
-
-		GENOME_FASTA = GENOME_FASTA,
-	
-		TMPDIR = TMPDIR,
-		MOD_JAVA = MOD_JAVA,
-		MOD_GATK = MOD_GATK,
-		GATK_JAR = GATK_JAR
-
-	}
 
 	#call combine_gvcf
 

@@ -822,6 +822,7 @@ task merge_and_call_individual_gvcf_calls {
 
 	String SAMPLE
 	File IN_VCF_G
+	File IN_VCF_G_INDEX = sub(IN_VCF_G, ".vcf.gz$", ".vcf.gz.tbi")
 
 	String GENOME_FASTA
 
@@ -928,6 +929,7 @@ output {
 task merge_and_call_combined_gvcf_calls {
 
 	File IN_VCF_G
+	File IN_VCF_G_INDEX = sub(IN_VCF_G, ".vcf.gz$", ".vcf.gz.tbi")
 
 	String GENOME_FASTA
 
@@ -963,6 +965,7 @@ output {
 task variant_recalibrator_prep {
 
 	File IN_VCF_ALL
+	File IN_VCF_ALL_INDEX = sub(IN_VCF_ALL, ".vcf.gz$", ".vcf.gz.tbi")
 
 	String GENOME_FASTA
 
@@ -1019,6 +1022,7 @@ output {
 task variant_recalibrator_exec {
 
 	File IN_VCF_ALL
+	File IN_VCF_ALL_INDEX = sub(IN_VCF_ALL, ".vcf.gz$", ".vcf.gz.tbi")
 	File IN_SNP_RCL
 	File IN_SNP_TRNCH
 	File IN_SNP_R
@@ -1055,7 +1059,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
 java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${GATK_JAR} \
   --analysis_type ApplyRecalibration -nt ${NT} \
   --disable_auto_index_creation_and_locking_when_reading_rods \
-  --reference_sequence {$GENOME_FASTA} \
+  --reference_sequence ${GENOME_FASTA} \
   -input allSamples.hc.snps_raw_indels.vqsr.vcf.gz \
   --ts_filter_level ${FILT_INDL} -mode INDEL \
   --tranches_file ${IN_INDL_TRNCH} \
@@ -1077,6 +1081,8 @@ output {
 task haplotype_caller_decompose_and_normalize {
 
 	File IN_VQSR
+	File IN_VQSR_INDEX = sub(IN_VQSR, ".vcf.gz$", ".vcf.gz.tbi")
+
 	String GENOME_FASTA
 
 	String MOD_HTSLIB
@@ -1106,6 +1112,7 @@ output {
 task haplotype_caller_flag_mappability {
 
 	File IN_VT
+	File IN_VT_INDEX = sub(IN_VT, ".vcf.gz$", ".vcf.gz.tbi")
 
 	File IlluEXCLUSION
 
@@ -1139,6 +1146,7 @@ output {
 task haplotype_caller_snp_id_annotation {
 
 	File IN_MIL
+	File IN_MIL_INDEX = sub(IN_MIL, ".vcf.gz$", ".vcf.gz.tbi")
 
 	File DB_SNP
 
@@ -1177,6 +1185,7 @@ output {
 task haplotype_caller_snp_effect {
 
 	File IN_SNPID
+	File IN_SNPID_INDEX = sub(IN_SNPID, ".vcf.gz$", ".vcf.gz.tbi")
 
 	String ASSEMBLY
 
@@ -1223,8 +1232,9 @@ output {
 task haplotype_caller_dbnsfp_annotation {
 
 	File IN_ZIPPED
+	File IN_ZIPPED_INDEX = sub(IN_ZIPPED, ".vcf.gz$", ".vcf.gz.tbi")
 
-	File DB_SFP
+	String DB_SFP
 
 	String MOD_JAVA
 	String MOD_SNPEFF
@@ -1263,6 +1273,7 @@ output {
 task haplotype_caller_gemini_annotations {
 
 	File IN_ZIPPED
+	File IN_ZIPPED_INDEX = sub(IN_ZIPPED, ".vcf.gz$", ".vcf.gz.tbi")
 
 	String MOD_GEMINI
 	String MOD_HTSLIB
@@ -1291,6 +1302,7 @@ output {
 task haplotype_caller_metrics_vcf_stats {
 
 	File IN_ZIPPED
+	File IN_ZIPPED_INDEX = sub(IN_ZIPPED, ".vcf.gz$", ".vcf.gz.tbi")
 	File IN_STATS
 
 	File GENOME_DICT

@@ -45,7 +45,7 @@
   "DnaSeq.MOD_PYTHON": "mugqic/python/2.7.14",
   "DnaSeq.MOD_MUGQICTOOLS": "mugqic/mugqic_tools/2.2.2",
   "DnaSeq.PYTHON_TOOLS": "/cvmfs/soft.mugqic/CentOS6/software/mugqic_tools/mugqic_tools-2.2.2/python-tools/",
-  "DnaSeq.MOD_MULTIQC": "mugqic/fastqc/0.11.51",
+  "DnaSeq.MOD_MULTIQC": "mugqic/MultiQC/1.8",
   
 
 
@@ -176,8 +176,8 @@
   "DnaSeq.variant_recalibrator_prep.BUFFER": 1048576,
   "DnaSeq.variant_recalibrator_prep.RAM": "24G",
   "DnaSeq.variant_recalibrator_prep.NT": 11,
-  "DnaSeq.variant_recalibrator_prep.RSRC_SNP": "-resource:hapmap,known=false,training=true,truth=true,prior=15.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/hapmap_3.3.b37.sites.vcf.gz -resource:omni,known=false,training=true,truth=false,prior=12.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/1000G_omni2.5.b37.vcf.gz -resource:1000G,known=false,training=true,truth=false,prior=10.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/1000G_phase1.snps.high_confidence.b37.vcf.gz -resource:dbsnp,known=true,training=false,truth=false,prior=6.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.dbSNP142.vcf.gz -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an DP -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 -mode SNP \\",
-  "DnaSeq.variant_recalibrator_prep.RSRC_INDL": "-resource:mills,known=false,training=true,truth=true,prior=12.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.Mills_and_1000G_gold_standard.indels.vcf.gz -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.dbSNP142.vcf.gz -an QD -an DP -an FS -an ReadPosRankSum -an MQRankSum -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 -mode INDEL \\",
+  "DnaSeq.variant_recalibrator_prep.RSRC_SNP": "-resource:hapmap,known=false,training=true,truth=true,prior=15.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/hapmap_3.3.b37.sites.vcf.gz -resource:omni,known=false,training=true,truth=false,prior=12.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/1000G_omni2.5.b37.vcf.gz -resource:1000G,known=false,training=true,truth=false,prior=10.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/1000G_phase1.snps.high_confidence.b37.vcf.gz -resource:dbsnp,known=true,training=false,truth=false,prior=6.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.dbSNP142.vcf.gz -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an DP -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 -mode SNP",
+  "DnaSeq.variant_recalibrator_prep.RSRC_INDL": "-resource:mills,known=false,training=true,truth=true,prior=12.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.Mills_and_1000G_gold_standard.indels.vcf.gz -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/annotations/Homo_sapiens.GRCh37.dbSNP142.vcf.gz -an QD -an DP -an FS -an ReadPosRankSum -an MQRankSum -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 -mode INDEL",
 
 
   "DnaSeq.variant_recalibrator_exec.THREADS": 1,
@@ -192,9 +192,11 @@
 
   "DnaSeq.haplotype_caller_snp_effect.THREADS": 2,
   "DnaSeq.haplotype_caller_snp_effect.RAM": "8G",
+  "DnaSeq.haplotype_caller_snp_effect.BUFFER": 1048576,
 
   "DnaSeq.haplotype_caller_dbnsfp_annotation.THREADS": 2,
   "DnaSeq.haplotype_caller_dbnsfp_annotation.RAM": "24G",
+  "DnaSeq.haplotype_caller_dbnsfp_annotation.BUFFER": 1048576,
 
   "DnaSeq.haplotype_caller_gemini_annotations.CPU": 10
 
