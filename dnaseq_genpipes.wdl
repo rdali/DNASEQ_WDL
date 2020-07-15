@@ -24,6 +24,7 @@ workflow DnaSeq {
 	String SPECIES
 	String ASSEMBLY
 	Array[String] CHRS
+	Array[String] CHR_EXCLUDE
 	File GENOME_FASTA
 	String BWA_INDX
 	File GENOME_DICT
@@ -156,6 +157,210 @@ workflow DnaSeq {
 			PICARD_HOME = PICARD_HOME
 
 		}
+
+
+		call dnaseq_tasks.picard_mark_duplicates {
+
+			input:
+			SAMPLE = sample.sample,
+			IN_BAM = fix_mate_by_coordinate.OUT_BAM,
+
+			MOD_JAVA = MOD_JAVA, 
+			MOD_PICARD = MOD_PICARD,
+			PICARD_HOME = PICARD_HOME,
+			TMPDIR = TMPDIR
+
+		}
+
+
+		call dnaseq_tasks.recalibration_report {
+
+			input:
+			SAMPLE = sample.sample,
+			IN_BAM = picard_mark_duplicates.OUT_BAM,
+			GENOME_FASTA = GENOME_FASTA,
+			KNOWNSITES = [DB_SNP, G1000, GNOMAD],
+
+			MOD_JAVA = MOD_JAVA,
+			MOD_GATK = MOD_GATK,
+			GATK_JAR = GATK_JAR,
+			TMPDIR = TMPDIR
+
+		}
+
+
+		call dnaseq_tasks.recalibration {
+
+			input:
+			SAMPLE = sample.sample,
+			IN_BAM = picard_mark_duplicates.OUT_BAM,
+
+			GENOME_FASTA = GENOME_FASTA,
+			IN_CLB_RPT  = recalibration_report.OUT_CLB_RPT,
+
+			MOD_JAVA = MOD_JAVA,
+			MOD_GATK = MOD_GATK,
+			GATK_JAR = GATK_JAR,
+			MOD_SAMTOOLS = MOD_SAMTOOLS,
+			MOD_SAMBAMBA = MOD_SAMBAMBA,
+			TMPDIR = TMPDIR
+
+		}
+
+
+		
+		call dnaseq_tasks.metrics_dna_picard_metrics_main {
+
+			input:
+			SAMPLE = sample.sample,
+			IN_BAM = picard_mark_duplicates.OUT_BAM,
+
+			GENOME_FASTA = GENOME_FASTA,
+
+			MOD_JAVA = MOD_JAVA,
+			MOD_PICARD = MOD_PICARD,
+			PICARD_HOME = PICARD_HOME,
+			MOD_R = MOD_R,
+			TMPDIR = TMPDIR
+
+		}
+
+
+		call dnaseq_tasks.metrics_dna_picard_metrics_oxog {
+
+			input:
+			SAMPLE = sample.sample,
+			IN_BAM = picard_mark_duplicates.OUT_BAM,
+
+			DB_SNP = DB_SNP,
+			GENOME_FASTA = GENOME_FASTA,
+
+			MOD_JAVA = MOD_JAVA,
+			MOD_PICARD = MOD_PICARD,
+			PICARD_HOME = PICARD_HOME,
+			MOD_R = MOD_R,
+			TMPDIR = TMPDIR
+
+		}
+
+
+		call dnaseq_tasks.metrics_dna_picard_metrics_biasQc {
+
+			input:
+			SAMPLE = sample.sample,
+			IN_BAM = picard_mark_duplicates.OUT_BAM,
+
+			GENOME_FASTA = GENOME_FASTA,
+
+			MOD_JAVA = MOD_JAVA,
+			MOD_PICARD = MOD_PICARD,
+			PICARD_HOME = PICARD_HOME,
+			MOD_R = MOD_R,
+			TMPDIR = TMPDIR
+
+		}
+
+
+		call dnaseq_tasks.metrics_dna_sample_qualimap {
+
+			input:
+			SAMPLE = sample.sample,
+			IN_BAM = picard_mark_duplicates.OUT_BAM,
+
+			SPECIES = SPECIES,
+
+			MOD_JAVA = MOD_JAVA,
+			MOD_QUALIMAP = MOD_QUALIMAP
+
+		}
+
+
+
+		call dnaseq_tasks.metrics_dna_sambamba_flagstat {
+
+			input:
+			SAMPLE = sample.sample,
+			IN_BAM = picard_mark_duplicates.OUT_BAM,
+
+			MOD_SAMBAMBA = MOD_SAMBAMBA
+
+		}
+
+
+		call dnaseq_tasks.metrics_dna_fastqc {
+
+			input:
+			SAMPLE = sample.sample,
+			IN_BAM = picard_mark_duplicates.OUT_BAM,
+			ADAPTER1 = readsetScatter.ADPTER1[0],
+			ADAPTER2 = readsetScatter.ADPTER2[0],
+
+			MOD_FASTQC = MOD_FASTQC,
+			MOD_JAVA = MOD_JAVA
+
+		}
+
+
+		call dnaseq_tasks.gatk_callable_loci	{
+
+			input:
+			SAMPLE = sample.sample,
+			IN_BAM = recalibration.OUT_BAM,
+			
+			GENOME_FASTA = GENOME_FASTA,
+
+			MOD_JAVA = MOD_JAVA,
+			MOD_GATK = MOD_GATK,
+			GATK_JAR = GATK_JAR,
+			TMPDIR = TMPDIR
+
+		}
+
+
+		call dnaseq_tasks.extract_common_snp_freq {
+
+			input:
+			SAMPLE = sample.sample,
+			IN_BAM = recalibration.OUT_BAM,
+			
+			DB_SNP_COMMON = DB_SNP_COMMON,
+
+			MOD_JAVA = MOD_JAVA,
+			MOD_BVATOOLS = MOD_BVATOOLS,
+			BVATOOLS_JAR = BVATOOLS_JAR
+
+		}	
+
+
+		call dnaseq_tasks.baf_plot {
+
+			input:
+			SAMPLE = sample.sample,
+
+			IN_COMMONSNPS = extract_common_snp_freq.OUT_COMMONSNPS,
+
+			DB_SNP_COMMON = DB_SNP_COMMON,
+			GENOME_DICT = GENOME_DICT,
+			CHR_EXCLUDE = CHR_EXCLUDE,
+
+			MOD_JAVA = MOD_JAVA,
+			MOD_BVATOOLS = MOD_BVATOOLS,
+			BVATOOLS_JAR = BVATOOLS_JAR
+
+		}
+
+		call dnaseq_tasks.cram {
+
+			input:
+			SAMPLE = sample.sample,
+			IN_BAM = recalibration.OUT_BAM,
+
+			GENOME_FASTA = GENOME_FASTA,
+
+			MOD_SAMTOOLS = MOD_SAMTOOLS
+
+	}
+
 
 	}
 }

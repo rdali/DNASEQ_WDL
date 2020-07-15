@@ -159,7 +159,7 @@ command <<<
 module purge && \
 module load ${MOD_SAMTOOLS} ${MOD_SAMBAMBA} && \
 sambamba merge -t 7 \
-${SAMPLE}.sorted.bam \
+${SAMPLE}${PREFIX} \
 ${sep=" " IN_BAMS}
 	>>>
 
@@ -234,7 +234,7 @@ task fix_mate_by_coordinate {
 
 	String SAMPLE
 	File IN_BAM
-	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bam.bai")
 
 	String MOD_JAVA
 	String MOD_BVATOOLS
@@ -554,12 +554,13 @@ module load ${MOD_JAVA} ${MOD_QUALIMAP} && \
 qualimap bamqc -nt 11 \
   -gd ${SPECIES} \
   -bam ${IN_BAM} \
+  -outdir ${SAMPLE} \
   --java-mem-size=${RAM}
 	>>>
 
 output {
 
-	File OUT_QUALIMAP="${SAMPLE}.qualimap.genome_results.txt"
+	File OUT_QUALIMAP="${SAMPLE}/genome_results.txt"
 
 	}
 }
@@ -601,6 +602,7 @@ task metrics_dna_fastqc {
 	String MOD_JAVA
 
 command <<<
+mkdir ${SAMPLE} && \
 module purge && \
 module load ${MOD_FASTQC} ${MOD_JAVA} && \
 `cat > adapter.tsv << END
@@ -608,6 +610,7 @@ module load ${MOD_FASTQC} ${MOD_JAVA} && \
 >Adapter2	${ADAPTER2}
 END` && \
 fastqc \
+  -o ${SAMPLE} \
   -t 3 \
   -a adapter.tsv \
   -f bam \
@@ -615,7 +618,7 @@ fastqc \
 	>>>
 
 output {
-	File OUT_FASTQC="${SAMPLE}.sorted.dup_fastqc.zip"
+	File OUT_FASTQC="${SAMPLE}/${SAMPLE}.sorted.dup_fastqc.zip"
 
 	}
 }
@@ -710,7 +713,7 @@ task baf_plot {
 	String MOD_BVATOOLS
 	String BVATOOLS_JAR
 
-	String CHR_EXCLUDE
+	Array[String] CHR_EXCLUDE
 	Int THREADS
 	Int BUFFER
 	String RAM
@@ -720,7 +723,9 @@ command <<<
 module purge && \
 module load ${MOD_JAVA} ${MOD_BVATOOLS} && \
 java -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer_size=${BUFFER} -Xmx${RAM} -jar ${BVATOOLS_JAR} \
-  ratiobaf --plot --maxDepth ${MAXDEPTH}  --exclude ${CHR_EXCLUDE} \
+  ratiobaf --plot \
+  --maxDepth ${MAXDEPTH} \
+  --exclude ${sep=',' CHR_EXCLUDE} \
   --refdict ${GENOME_DICT} \
   --snppos ${DB_SNP_COMMON} \
   --basefreq ${IN_COMMONSNPS} \
@@ -819,7 +824,6 @@ task merge_and_call_individual_gvcf_calls {
 	File IN_VCF_G
 
 	String GENOME_FASTA
-	String INTERVAL
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -963,7 +967,7 @@ task variant_recalibrator_prep {
 	String GENOME_FASTA
 
 	String RSRC_SNP
-	String RSCR_INDL
+	String RSRC_INDL
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -994,7 +998,7 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:ParallelGCThreads=${THREADS} -Dsamjdk.buffer
   --disable_auto_index_creation_and_locking_when_reading_rods \
   --reference_sequence ${GENOME_FASTA} \
   -input ${IN_VCF_ALL} \
-  ${RSRC_SNP} \
+  ${RSRC_INDL} \
   --recal_file allSamples.hc.indels.recal \
   --tranches_file allSamples.hc.indels.tranches \
   --rscript_file allSamples.hc.indels.R
@@ -1336,7 +1340,7 @@ output {
 
 
 
-task cram_output {
+task cram {
 
 	String SAMPLE
 	File IN_BAM
