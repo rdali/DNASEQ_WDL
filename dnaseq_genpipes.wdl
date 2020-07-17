@@ -1,14 +1,17 @@
 #-------------------------------------------------------------------------------
 # DnaSeq WDL workflow
 # Version1 based on GenPipes 3.1.5-beta
-# Created on: 2020-06-18
+# Created on: 2020-07-18
 #-------------------------------------------------------------------------------
 
 
-import "dnaseq_tasks.wdl"
+
+import "genpipes_tasks.wdl"
 import "dnaseq_readsetScatter.wdl" as readsetScatter
 import "dnaseq_gatkRealinger.wdl" as gatkRealingerScatter
 import "dnaseq_gatkCaller.wdl" as gatkCallerScatter
+import "dnaseq_combineGVCF.wdl" as combineGVCFScatter
+
 
 
 #-------------------------------------------------------------------------------
@@ -70,7 +73,7 @@ workflow DnaSeq {
 	String PYTHON_TOOLS
 	String MOD_MULTIQC
 
-	## loop over samples then readsets
+
 
 	scatter (sample in samples) {
 	
@@ -95,7 +98,7 @@ workflow DnaSeq {
 
 		if (length(readsetScatter.OUT_BAMs) > 1){
 
-			call dnaseq_tasks.sambamba_merge_sam_files {
+			call genpipes_tasks.sambamba_merge_sam_files {
 
 				input:
 
@@ -123,15 +126,10 @@ workflow DnaSeq {
 			MOD_GATK = MOD_GATK,
 			GATK_JAR = GATK_JAR
 
-		#output:
-#      Array[File] OUT_INTRVLs = concat_intvls.OUT
-#      Array[File] OUT_BAMs = concat_bams.OUT
-
-
 		}
 
 
-		call dnaseq_tasks.sambamba_merge_sam_files as sambamba_merge_sam_files_gatk {
+		call genpipes_tasks.sambamba_merge_sam_files as sambamba_merge_sam_files_gatk {
 
 			input:
 			SAMPLE = sample.sample,
@@ -144,7 +142,7 @@ workflow DnaSeq {
 		}
 
 
-		call dnaseq_tasks.fix_mate_by_coordinate {
+		call genpipes_tasks.fix_mate_by_coordinate {
 
 			input:
 			SAMPLE = sample.sample,
@@ -160,7 +158,7 @@ workflow DnaSeq {
 		}
 
 
-		call dnaseq_tasks.picard_mark_duplicates {
+		call genpipes_tasks.picard_mark_duplicates {
 
 			input:
 			SAMPLE = sample.sample,
@@ -174,7 +172,7 @@ workflow DnaSeq {
 		}
 
 
-		call dnaseq_tasks.recalibration_report {
+		call genpipes_tasks.recalibration_report {
 
 			input:
 			SAMPLE = sample.sample,
@@ -190,7 +188,7 @@ workflow DnaSeq {
 		}
 
 
-		call dnaseq_tasks.recalibration {
+		call genpipes_tasks.recalibration {
 
 			input:
 			SAMPLE = sample.sample,
@@ -210,7 +208,7 @@ workflow DnaSeq {
 
 
 		
-		call dnaseq_tasks.metrics_dna_picard_metrics_main {
+		call genpipes_tasks.metrics_dna_picard_metrics_main {
 
 			input:
 			SAMPLE = sample.sample,
@@ -227,7 +225,7 @@ workflow DnaSeq {
 		}
 
 
-		call dnaseq_tasks.metrics_dna_picard_metrics_oxog {
+		call genpipes_tasks.metrics_dna_picard_metrics_oxog {
 
 			input:
 			SAMPLE = sample.sample,
@@ -245,7 +243,7 @@ workflow DnaSeq {
 		}
 
 
-		call dnaseq_tasks.metrics_dna_picard_metrics_biasQc {
+		call genpipes_tasks.metrics_dna_picard_metrics_biasQc {
 
 			input:
 			SAMPLE = sample.sample,
@@ -262,7 +260,7 @@ workflow DnaSeq {
 		}
 
 
-		call dnaseq_tasks.metrics_dna_sample_qualimap {
+		call genpipes_tasks.metrics_dna_sample_qualimap {
 
 			input:
 			SAMPLE = sample.sample,
@@ -277,7 +275,7 @@ workflow DnaSeq {
 
 
 
-		call dnaseq_tasks.metrics_dna_sambamba_flagstat {
+		call genpipes_tasks.metrics_dna_sambamba_flagstat {
 
 			input:
 			SAMPLE = sample.sample,
@@ -288,7 +286,7 @@ workflow DnaSeq {
 		}
 
 
-		call dnaseq_tasks.metrics_dna_fastqc {
+		call genpipes_tasks.metrics_dna_fastqc {
 
 			input:
 			SAMPLE = sample.sample,
@@ -302,7 +300,7 @@ workflow DnaSeq {
 		}
 
 
-		call dnaseq_tasks.gatk_callable_loci	{
+		call genpipes_tasks.gatk_callable_loci	{
 
 			input:
 			SAMPLE = sample.sample,
@@ -318,7 +316,7 @@ workflow DnaSeq {
 		}
 
 
-		call dnaseq_tasks.extract_common_snp_freq {
+		call genpipes_tasks.extract_common_snp_freq {
 
 			input:
 			SAMPLE = sample.sample,
@@ -333,7 +331,7 @@ workflow DnaSeq {
 		}	
 
 
-		call dnaseq_tasks.baf_plot {
+		call genpipes_tasks.baf_plot {
 
 			input:
 			SAMPLE = sample.sample,
@@ -350,7 +348,8 @@ workflow DnaSeq {
 
 		}
 
-		call dnaseq_tasks.cram {
+
+		call genpipes_tasks.cram {
 
 			input:
 			SAMPLE = sample.sample,
@@ -360,7 +359,7 @@ workflow DnaSeq {
 
 			MOD_SAMTOOLS = MOD_SAMTOOLS
 
-	}
+		}
 
 
 		call gatkCallerScatter.gatkCallerScatter {
@@ -378,14 +377,10 @@ workflow DnaSeq {
 			MOD_GATK = MOD_GATK,
 			GATK_JAR = GATK_JAR
 
-			#output:
-	#      Array[File] OUT_VCFs
-	#      Array[File] OUT_TBIs
-
-
 		}
 
-		call dnaseq_tasks.merge_and_call_individual_gvcf_merge {
+
+		call genpipes_tasks.merge_and_call_individual_gvcf_merge {
 
 			input:
 			SAMPLE = sample.sample,
@@ -400,8 +395,7 @@ workflow DnaSeq {
 		}
 
 
-
-		call dnaseq_tasks.merge_and_call_individual_gvcf_calls {
+		call genpipes_tasks.merge_and_call_individual_gvcf_calls {
 
 			input:
 			SAMPLE = sample.sample,
@@ -417,26 +411,57 @@ workflow DnaSeq {
 		}
 
 
-		call dnaseq_tasks.merge_and_call_combined_gvcf_calls {
-
-			input:
-			IN_VCF_G = merge_and_call_combined_gvcf_merges.OUT_VCF_G,
-
-			GENOME_FASTA = GENOME_FASTA,
-
-			TMPDIR = TMPDIR,
-			MOD_JAVA = MOD_JAVA,
-			MOD_GATK = MOD_GATK,
-			GATK_JAR = GATK_JAR
-
-		}
+	}
 
 
+	call combineGVCFScatter.combineGVCFScatter {
+
+		input:
+		IN_VCFS_G = merge_and_call_individual_gvcf_merge.OUT_VCF_G,
+
+		GENOME_FASTA = GENOME_FASTA,
+		INTERVALS = CHRS,
+		CHR_EXCLUDE = CHR_EXCLUDE,
+
+		TMPDIR = TMPDIR,
+		MOD_JAVA = MOD_JAVA,
+		MOD_GATK = MOD_GATK,
+		GATK_JAR = GATK_JAR
 
 	}
 
 
-	call dnaseq_tasks.variant_recalibrator_prep {
+	call genpipes_tasks.merge_and_call_combined_gvcf_merges {
+		
+		input:
+		VCFS = combineGVCFScatter.OUT_GVCFs,
+		GENOME_FASTA = GENOME_FASTA,
+	
+		TMPDIR = TMPDIR,
+		MOD_JAVA = MOD_JAVA,
+		MOD_GATK = MOD_GATK,
+		GATK_JAR = GATK_JAR
+
+	}
+
+
+
+	call genpipes_tasks.merge_and_call_combined_gvcf_calls {
+
+		input:
+		IN_VCF_G = merge_and_call_combined_gvcf_merges.OUT_VCF_G,
+
+		GENOME_FASTA = GENOME_FASTA,
+
+		TMPDIR = TMPDIR,
+		MOD_JAVA = MOD_JAVA,
+		MOD_GATK = MOD_GATK,
+		GATK_JAR = GATK_JAR
+
+	}
+
+
+	call genpipes_tasks.variant_recalibrator_prep {
 
 		input:
 		IN_VCF_ALL = merge_and_call_combined_gvcf_calls.OUT_VCF_ALL,
@@ -453,7 +478,7 @@ workflow DnaSeq {
 	}
 
 
-	call dnaseq_tasks.variant_recalibrator_exec {
+	call genpipes_tasks.variant_recalibrator_exec {
 
 		input:
 		IN_VCF_ALL = merge_and_call_combined_gvcf_calls.OUT_VCF_ALL,
@@ -474,7 +499,7 @@ workflow DnaSeq {
 	}
 
 
-	call dnaseq_tasks.haplotype_caller_decompose_and_normalize {
+	call genpipes_tasks.haplotype_caller_decompose_and_normalize {
 
 		input:
 		IN_VQSR = variant_recalibrator_exec.OUT_VQSR,
@@ -487,7 +512,7 @@ workflow DnaSeq {
 	}
 
 
-	call dnaseq_tasks.haplotype_caller_flag_mappability {
+	call genpipes_tasks.haplotype_caller_flag_mappability {
 
 		input:
 		IN_VT = haplotype_caller_decompose_and_normalize.OUT_VT,
@@ -501,7 +526,7 @@ workflow DnaSeq {
 	}
 
 
-	call dnaseq_tasks.haplotype_caller_snp_id_annotation {
+	call genpipes_tasks.haplotype_caller_snp_id_annotation {
 
 		input:
 		IN_MIL = haplotype_caller_flag_mappability.OUT_MIL,
@@ -518,7 +543,7 @@ workflow DnaSeq {
 	}
 
 
-	call dnaseq_tasks.haplotype_caller_snp_effect {
+	call genpipes_tasks.haplotype_caller_snp_effect {
 
 		input:
 		IN_SNPID = haplotype_caller_snp_id_annotation.OUT_SNPID,
@@ -535,7 +560,7 @@ workflow DnaSeq {
 	}
 
 
-	call dnaseq_tasks.haplotype_caller_dbnsfp_annotation {
+	call genpipes_tasks.haplotype_caller_dbnsfp_annotation {
 
 		input:
 		IN_ZIPPED = haplotype_caller_snp_effect.OUT_ZIPPED,
@@ -551,7 +576,8 @@ workflow DnaSeq {
 
 	}
 
-	call dnaseq_tasks.haplotype_caller_gemini_annotations {
+
+	call genpipes_tasks.haplotype_caller_gemini_annotations {
 
 		input:
 		IN_ZIPPED = haplotype_caller_dbnsfp_annotation.OUT_ZIPPED,
@@ -562,7 +588,8 @@ workflow DnaSeq {
 
 	}
 
-	call dnaseq_tasks.haplotype_caller_metrics_vcf_stats {
+
+	call genpipes_tasks.haplotype_caller_metrics_vcf_stats {
 
 		input:
 		IN_ZIPPED = haplotype_caller_dbnsfp_annotation.OUT_ZIPPED,
@@ -576,7 +603,8 @@ workflow DnaSeq {
 
 	}
 
-	call dnaseq_tasks.run_multiqc {
+
+	call genpipes_tasks.run_multiqc {
 
 		input:
 		## add files from every step

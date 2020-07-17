@@ -1,10 +1,10 @@
 #-------------------------------------------------------------------------------
 # DnaSeq WDL workflow
 # Version1 based on GenPipes 3.1.5-beta
-# Created on: 2020-06-18
+# Created on: 2020-07-18
 #-------------------------------------------------------------------------------
 
-import "dnaseq_tasks.wdl"
+import "genpipes_tasks.wdl"
 
 
 workflow readsetScatter {
@@ -31,7 +31,7 @@ workflow readsetScatter {
 
     if (readset.bam != "None"){
 
-      call dnaseq_tasks.picard_sam_to_fastq {
+      call genpipes_tasks.picard_sam_to_fastq {
 
         input:
         READSET = readset.readset,
@@ -44,7 +44,7 @@ workflow readsetScatter {
       }
     }
 
-    call dnaseq_tasks.trimmomatic {
+    call genpipes_tasks.trimmomatic {
 
       input:
       READSET = readset.readset,
@@ -58,7 +58,7 @@ workflow readsetScatter {
 
     }
 
-    call dnaseq_tasks.bwa_mem_picard_sort_sam {
+    call genpipes_tasks.bwa_mem_picard_sort_sam {
 
       input:
       READSET = readset.readset,

@@ -5,7 +5,7 @@
 #-------------------------------------------------------------------------------
 
 
-import "dnaseq_tasks.wdl"
+import "genpipes_tasks.wdl"
 import "dnaseq_readsetScatter.wdl" as readsetScatter
 import "dnaseq_gatkCaller.wdl" as gatkCallerScatter
 
@@ -91,18 +91,7 @@ workflow DnaSeq {
 
 }
 
-#	call dnaseq_tasks.merge_and_call_combined_gvcf_merges {
-		
-#		input:
-#		VCFS = ,
-#		GENOME_FASTA = GENOME_FASTA,
-#	
-#		TMPDIR = TMPDIR,
-#		MOD_JAVA = MOD_JAVA,
-#		MOD_GATK = MOD_GATK,
-#		GATK_JAR = GATK_JAR
 
-#	}
 
 
 

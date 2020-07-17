@@ -1,10 +1,10 @@
 #-------------------------------------------------------------------------------
 # DnaSeq WDL workflow
 # Version1 based on GenPipes 3.1.5-beta
-# Created on: 2020-06-18
+# Created on: 2020-07-18
 #-------------------------------------------------------------------------------
 
-import "dnaseq_tasks.wdl"
+import "genpipes_tasks.wdl"
 
 
 workflow gatkCallerScatter {
@@ -25,7 +25,7 @@ workflow gatkCallerScatter {
 
 
 
-	call dnaseq_tasks.array_extend as concat_exclude {
+	call genpipes_tasks.array_extend as concat_exclude {
 
     	input:
     	list1 = CHR_EXCLUDE,
@@ -36,7 +36,7 @@ workflow gatkCallerScatter {
 
   scatter(chr in INTERVALS){
 
-    call dnaseq_tasks.gatk_haplotype_caller as gatk_haplotype_caller_INCLD {
+    call genpipes_tasks.gatk_haplotype_caller as gatk_haplotype_caller_INCLD {
 
         input:
 		SAMPLE = SAMPLE,
@@ -53,7 +53,7 @@ workflow gatkCallerScatter {
 
   }
 
-    call dnaseq_tasks.gatk_haplotype_caller as gatk_haplotype_caller_EXCLD {
+    call genpipes_tasks.gatk_haplotype_caller as gatk_haplotype_caller_EXCLD {
 
         input:
 		SAMPLE = SAMPLE,
@@ -70,7 +70,7 @@ workflow gatkCallerScatter {
 
 
 
-    call dnaseq_tasks.array_extend_file as concat_vcf {
+    call genpipes_tasks.array_extend_file as concat_vcf {
 
     	input:
     	list1 = gatk_haplotype_caller_INCLD.OUT_VCF_INTRVL,
@@ -78,7 +78,7 @@ workflow gatkCallerScatter {
 
     }
 
-    call dnaseq_tasks.array_extend_file as concat_tbi {
+    call genpipes_tasks.array_extend_file as concat_tbi {
 
     	input:
     	list1 = gatk_haplotype_caller_INCLD.OUT_TBI_INTRVL,

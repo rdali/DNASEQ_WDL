@@ -1,10 +1,10 @@
 #-------------------------------------------------------------------------------
 # DnaSeq WDL workflow
 # Version1 based on GenPipes 3.1.5-beta
-# Created on: 2020-06-18
+# Created on: 2020-07-18
 #-------------------------------------------------------------------------------
 
-import "dnaseq_tasks.wdl"
+import "genpipes_tasks.wdl"
 
 
 workflow gatkRealingerScatter {
@@ -27,7 +27,7 @@ workflow gatkRealingerScatter {
 
   scatter(chr in INTERVALS){
 
-    call dnaseq_tasks.gatk_indel_realigner as gatk_indel_realigner_INCLD {
+    call genpipes_tasks.gatk_indel_realigner as gatk_indel_realigner_INCLD {
 
         input:
 		SAMPLE = SAMPLE,
@@ -45,7 +45,7 @@ workflow gatkRealingerScatter {
 
   }
 
-    call dnaseq_tasks.gatk_indel_realigner as gatk_indel_realigner_EXCLD {
+    call genpipes_tasks.gatk_indel_realigner as gatk_indel_realigner_EXCLD {
 
         input:
 		SAMPLE = SAMPLE,
@@ -63,7 +63,7 @@ workflow gatkRealingerScatter {
 
 
 
-    call dnaseq_tasks.array_extend_file as concat_intvls {
+    call genpipes_tasks.array_extend_file as concat_intvls {
 
     	input:
     	list1 = gatk_indel_realigner_INCLD.OUT_INTRVL,
@@ -71,7 +71,7 @@ workflow gatkRealingerScatter {
 
     }
 
-    call dnaseq_tasks.array_extend_file as concat_bams {
+    call genpipes_tasks.array_extend_file as concat_bams {
 
     	input:
     	list1 = gatk_indel_realigner_INCLD.OUT_BAM,

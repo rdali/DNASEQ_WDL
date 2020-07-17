@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # DnaSeq WDL workflow
 # Version1 based on GenPipes 3.1.5-beta
-# Created on: 2020-06-18
+# Created on: 2020-07-18
 #-------------------------------------------------------------------------------
 
 
@@ -857,10 +857,11 @@ output {
 task combine_gvcf {
 
 	Array[File] IN_VCFS_G
-	Array[String] CHR_EXCLUDE
 
 	String GENOME_FASTA
-	String INTERVAL
+	String INTERVAL_NAME
+	Array[String]? INTERVALS
+	Array[String]? CHR_EXCLUDE
 
 	String MOD_JAVA
 	String MOD_GATK
@@ -879,13 +880,15 @@ java -Djava.io.tmpdir=${TMPDIR} -XX:+UseParallelGC -XX:ParallelGCThreads=${THREA
   --disable_auto_index_creation_and_locking_when_reading_rods \
   --reference_sequence ${GENOME_FASTA} \
   --variant ${sep=" --variant " IN_VCFS_G} \
-  --out allSamples.${INTERVAL}.hc.g.vcf.bgz \
-  --excludeIntervals ${sep=" --excludeIntervals " CHR_EXCLUDE}
+  --out allSamples.${INTERVAL_NAME}.hc.g.vcf.bgz \
+  ${true=' --intervals ' false='' defined(INTERVALS)}${sep=' --intervals ' INTERVALS} \
+  ${true=' --excludeIntervals ' false='' defined(CHR_EXCLUDE)}${sep=' --excludeIntervals ' CHR_EXCLUDE}
+
 	>>>
 
 output {
 
-	File OUT_VCF_G="allSamples.${INTERVAL}.hc.g.vcf.bgz"
+	File OUT_VCF_G="allSamples.${INTERVAL_NAME}.hc.g.vcf.bgz"
 
 	}
 }
