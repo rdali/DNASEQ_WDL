@@ -151,6 +151,7 @@ task sambamba_merge_sam_files {
 	String SAMPLE
 	String PREFIX
 	Array[File] IN_BAMS
+	String PREFIX_BAI = sub(PREFIX, ".bam$", ".bai")
 
 	String MOD_SAMTOOLS
 	String MOD_SAMBAMBA
@@ -160,12 +161,14 @@ module purge && \
 module load ${MOD_SAMTOOLS} ${MOD_SAMBAMBA} && \
 sambamba merge -t 7 \
 ${SAMPLE}${PREFIX} \
-${sep=" " IN_BAMS}
+${sep=" " IN_BAMS} && \
+mv ${SAMPLE}${PREFIX}.bai ${SAMPLE}${PREFIX_BAI}
 	>>>
 
 output {
 
 	File OUT_MERGED_BAM="${SAMPLE}${PREFIX}"
+	File OUT_MERGED_BAI="${SAMPLE}${PREFIX_BAI}"
 
 	}
 }
@@ -234,7 +237,7 @@ task fix_mate_by_coordinate {
 
 	String SAMPLE
 	File IN_BAM
-	File IN_BAI = sub(IN_BAM, ".bam$", ".bam.bai")
+	File IN_BAI = sub(IN_BAM, ".bam$", ".bai")
 
 	String MOD_JAVA
 	String MOD_BVATOOLS

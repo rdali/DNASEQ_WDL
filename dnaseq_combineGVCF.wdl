@@ -12,7 +12,6 @@ workflow combineGVCFScatter {
 	Array[File] IN_VCFS_G
 
 	String GENOME_FASTA
-	String INTERVAL_NAME
 	Array[String] INTERVALS
 	Array[String] CHR_EXCLUDE
 
