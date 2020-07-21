@@ -400,6 +400,7 @@ workflow DnaSeq {
 			input:
 			SAMPLE = sample.sample,
 			IN_VCF_G = merge_and_call_individual_gvcf_merge.OUT_VCF_G,
+			IN_VCF_G_INDEX = merge_and_call_individual_gvcf_merge.OUT_VCF_G_INDEX,
 
 			GENOME_FASTA = GENOME_FASTA,
 		
@@ -418,6 +419,7 @@ workflow DnaSeq {
 
 		input:
 		IN_VCFS_G = merge_and_call_individual_gvcf_merge.OUT_VCF_G,
+		IN_VCF_G_INDEX = merge_and_call_individual_gvcf_merge.OUT_VCF_G_INDEX,
 
 		GENOME_FASTA = GENOME_FASTA,
 		INTERVALS = CHRS,
@@ -435,6 +437,8 @@ workflow DnaSeq {
 		
 		input:
 		VCFS = combineGVCFScatter.OUT_GVCFs,
+		VCF_INDEXs = combineGVCFScatter.OUT_GVCF_INDEXs,
+
 		GENOME_FASTA = GENOME_FASTA,
 	
 		TMPDIR = TMPDIR,
@@ -450,6 +454,7 @@ workflow DnaSeq {
 
 		input:
 		IN_VCF_G = merge_and_call_combined_gvcf_merges.OUT_VCF_G,
+		IN_VCF_G_INDEX = merge_and_call_combined_gvcf_merges.OUT_VCF_G_INDEX,
 
 		GENOME_FASTA = GENOME_FASTA,
 
@@ -465,6 +470,7 @@ workflow DnaSeq {
 
 		input:
 		IN_VCF_ALL = merge_and_call_combined_gvcf_calls.OUT_VCF_ALL,
+		IN_VCF_ALL_INDEX = merge_and_call_combined_gvcf_calls.OUT_VCF_ALL_INDEX,
 
 		GENOME_FASTA = GENOME_FASTA,
 
@@ -482,6 +488,7 @@ workflow DnaSeq {
 
 		input:
 		IN_VCF_ALL = merge_and_call_combined_gvcf_calls.OUT_VCF_ALL,
+		IN_VCF_ALL_INDEX = merge_and_call_combined_gvcf_calls.OUT_VCF_ALL_INDEX,
 		IN_SNP_RCL = variant_recalibrator_prep.OUT_SNP_RCL,
 		IN_SNP_TRNCH = variant_recalibrator_prep.OUT_SNP_TRNCH,
 		IN_SNP_R = variant_recalibrator_prep.OUT_SNP_R,
@@ -503,7 +510,8 @@ workflow DnaSeq {
 
 		input:
 		IN_VQSR = variant_recalibrator_exec.OUT_VQSR,
-		
+		IN_VQSR_INDEX = variant_recalibrator_exec.OUT_VQSR_INDEX,
+
 		GENOME_FASTA = GENOME_FASTA,
 
 		MOD_HTSLIB = MOD_HTSLIB,
@@ -516,6 +524,7 @@ workflow DnaSeq {
 
 		input:
 		IN_VT = haplotype_caller_decompose_and_normalize.OUT_VT,
+		IN_VT_INDEX = haplotype_caller_decompose_and_normalize.OUT_VT_INDEX,
 
 		IlluEXCLUSION = IlluEXCLUSION,
 
@@ -530,6 +539,7 @@ workflow DnaSeq {
 
 		input:
 		IN_MIL = haplotype_caller_flag_mappability.OUT_MIL,
+		IN_MIL_INDEX = haplotype_caller_flag_mappability.OUT_MIL_INDEX,
 
 		DB_SNP = DB_SNP,
 
@@ -547,6 +557,7 @@ workflow DnaSeq {
 
 		input:
 		IN_SNPID = haplotype_caller_snp_id_annotation.OUT_SNPID,
+		IN_SNPID_INDEX = haplotype_caller_snp_id_annotation.OUT_SNPID_INDEX,
 
 		ASSEMBLY = ASSEMBLY,
 
@@ -564,6 +575,7 @@ workflow DnaSeq {
 
 		input:
 		IN_ZIPPED = haplotype_caller_snp_effect.OUT_ZIPPED,
+		IN_ZIPPED_INDEX = haplotype_caller_snp_effect.OUT_ZIPPED_INDEX,
 
 		DB_SFP = DB_SFP,
 
@@ -581,6 +593,7 @@ workflow DnaSeq {
 
 		input:
 		IN_ZIPPED = haplotype_caller_dbnsfp_annotation.OUT_ZIPPED,
+		IN_ZIPPED_INDEX = haplotype_caller_dbnsfp_annotation.OUT_ZIPPED_INDEX,
 
 		TMPDIR = TMPDIR,
 		MOD_GEMINI = MOD_GEMINI,
@@ -593,6 +606,7 @@ workflow DnaSeq {
 
 		input:
 		IN_ZIPPED = haplotype_caller_dbnsfp_annotation.OUT_ZIPPED,
+		IN_ZIPPED_INDEX = haplotype_caller_dbnsfp_annotation.OUT_ZIPPED_INDEX,
 		IN_STATS = haplotype_caller_snp_effect.OUT_STATS,
 
 		GENOME_DICT = GENOME_DICT,

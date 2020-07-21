@@ -10,6 +10,7 @@ import "genpipes_tasks.wdl"
 workflow combineGVCFScatter {
 
 	Array[File] IN_VCFS_G
+	Array[File] IN_VCF_G_INDEX
 
 	String GENOME_FASTA
 	Array[String] INTERVALS
@@ -29,6 +30,7 @@ workflow combineGVCFScatter {
 
         input:
 		IN_VCFS_G = IN_VCFS_G,
+		IN_VCF_G_INDEX = IN_VCF_G_INDEX,
 		GENOME_FASTA = GENOME_FASTA,
 		INTERVALS = [chr],
 		INTERVAL_NAME = chr,
@@ -45,6 +47,7 @@ workflow combineGVCFScatter {
 
         input:
         IN_VCFS_G = IN_VCFS_G,
+        IN_VCF_G_INDEX = IN_VCF_G_INDEX,
 		GENOME_FASTA = GENOME_FASTA,
 		CHR_EXCLUDE = CHR_EXCLUDE,
 		INTERVAL_NAME = "others",
@@ -65,10 +68,18 @@ workflow combineGVCFScatter {
 
     }
 
+    call genpipes_tasks.array_extend_file as concat_gvcf_index {
+
+    	input:
+    	list1 = combine_gvcf_INCLD.OUT_VCF_G_INDEX,
+    	list2 = [combine_gvcf_EXCLD.OUT_VCF_G_INDEX]
+
+    }
 
     output {
 
       Array[File] OUT_GVCFs = concat_gvcf.OUT
+      Array[File] OUT_GVCF_INDEXs = concat_gvcf_index.OUT
 
     }
 
