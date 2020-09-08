@@ -42,6 +42,13 @@ SECOND_END_FASTQ=${READSET}.pair2.fastq.gz
 	File OUT_FQ1 = "${READSET}.pair1.fastq.gz"
 	File OUT_FQ2 = "${READSET}.pair1.fastq.gz"
 	}
+
+	runtime {
+    memory_mb_per_core: 4775
+    cpus: 5
+    time: "48:00:00"
+  	}
+
 }
 
 
@@ -97,6 +104,13 @@ output {
 	File OUT_TRIM_LOG = "${READSET}.trim.log"
 
 	}
+
+	runtime {
+    memory_mb_per_core: 4775
+    cpus: 5
+    time: "48:00:00"
+  	}
+
 }
 
 
@@ -142,6 +156,13 @@ output {
 	File OUT_BAI = "${READSET}.sorted.bai"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 15
+    time: "96:00:00"
+  	}
+
 }
 
 
@@ -171,6 +192,13 @@ output {
 	File OUT_MERGED_BAI = "${SAMPLE}${PREFIX_BAI}"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 10
+    time: "35:00:00"
+  	}
+
 }
 
 
@@ -229,6 +257,13 @@ output {
 	File OUT_BAM = "${SAMPLE}.sorted.realigned.${INTERVAL_NAME}.bam"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 5
+    time: "35:00:00"
+  	}
+
 }
 
 
@@ -275,6 +310,13 @@ output {
 	File OUT_BAI = "${SAMPLE}.matefixed.sorted.bai"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 12
+    time: "71:00:00"
+  	}
+
 }
 
 
@@ -314,6 +356,13 @@ output {
 	File OUT_BAI = "${SAMPLE}.sorted.dup.bai"
 	File OUT_METRICS = "${SAMPLE}.sorted.dup.metrics"
 	}
+
+runtime {
+    memory_mb_per_core: 1200
+    cpus: 5
+    time: "71:00:00"
+  	}
+
 }
 
 
@@ -357,6 +406,13 @@ output {
 	File OUT_CLB_RPT = "${SAMPLE}.sorted.dup.recalibration_report.grp"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 10
+    time: "71:00:00"
+  	}
+
 }
 
 
@@ -403,6 +459,13 @@ output {
 	File OUT_BAMBAI = "${SAMPLE}.sorted.dup.recal.bam.bai"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 10
+    time: "71:00:00"
+  	}
+
 }
 
 
@@ -449,6 +512,13 @@ output {
 	File OUT_DIST_PDF = "${SAMPLE}.picard_metrics.all.metrics.quality_distribution.pdf"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 2
+    time: "71:00:00"
+  	}
+
 }
 
 
@@ -492,6 +562,13 @@ output {
 	File OUT_OXOG = "${SAMPLE}.picard_metrics.oxog_metrics.txt"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 2
+    time: "35:00:00"
+  	}
+
 }
 
 
@@ -534,6 +611,13 @@ output {
 	File OUT_BIAS = "${SAMPLE}.picard_metrics.qcbias_metrics.txt"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 2
+    time: "35:00:00"
+  	}
+
 }
 
 
@@ -550,7 +634,6 @@ task metrics_dna_sample_qualimap {
 
 	String RAM
 
-
 command <<<
 module purge && \
 module load ${MOD_JAVA} ${MOD_QUALIMAP} && \
@@ -566,6 +649,13 @@ output {
 	File OUT_QUALIMAP = "${SAMPLE}/genome_results.txt"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 15
+    time: "96:00:00"
+  	}
+
 }
 
 
@@ -586,9 +676,17 @@ sambamba flagstat -t 5 \
 	>>>
 
 output {
+
 	File OUT_FLAGSTAT = "${SAMPLE}.flagstat"
 
 	}
+
+runtime {
+    memory_mb_per_core: 1200
+    cpus: 5
+    time: "12:00:00"
+  	}
+
 }
 
 
@@ -621,9 +719,17 @@ fastqc \
 	>>>
 
 output {
+
 	File OUT_FASTQC = "${SAMPLE}/${SAMPLE}.sorted.dup_fastqc.zip"
 
 	}
+
+runtime {
+    memory_mb_per_core: 1200
+    cpus: 3
+    time: "35:00:00"
+  	}
+
 }
 
 
@@ -665,6 +771,13 @@ output {
 	File OUT_SUMMARY = "${SAMPLE}.callable.summary.txt"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 3
+    time: "35:00:00"
+  	}
+
 }
 
 
@@ -700,6 +813,13 @@ output {
 	File OUT_COMMONSNPS = "${SAMPLE}.commonSNPs.alleleFreq.csv"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 5
+    time: "35:00:00"
+  	}
+
 }
 
 
@@ -740,6 +860,13 @@ output {
 	File OUT_BAF = "${SAMPLE}.ratioBAF.png"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 10
+    time: "24:00:00"
+  	}
+
 }
 
 
@@ -783,6 +910,13 @@ output {
 	File OUT_TBI_INTRVL = "${SAMPLE}.${INTERVAL_NAME}.hc.g.vcf.gz.tbi"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 10
+    time: "35:00:00"
+  	}
+
 }
 
 
@@ -819,6 +953,13 @@ output {
 	File OUT_VCF_G_INDEX = "${SAMPLE}.hc.g.vcf.gz.tbi"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 8
+    time: "96:00:00"
+  	}
+
 }
 
 
@@ -858,6 +999,13 @@ output {
 	File OUT_VCF_INDEX = "${SAMPLE}.hc.vcf.gz.tbi"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 8
+    time: "96:00:00"
+  	}
+
 }
 
 task combine_gvcf {
@@ -900,6 +1048,13 @@ output {
 	File OUT_VCF_G_INDEX = "allSamples.${INTERVAL_NAME}.hc.g.vcf.bgz.tbi"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 15
+    time: "120:00:00"
+  	}
+
 }
 
 
@@ -936,6 +1091,13 @@ output {
 	File OUT_VCF_G_INDEX = "allSamples.hc.g.vcf.gz.tbi"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 15
+    time: "96:00:00"
+  	}
+
 }
 
 
@@ -974,6 +1136,13 @@ output {
 	File OUT_VCF_ALL_INDEX = "allSamples.hc.vcf.gz.tbi"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 15
+    time: "96:00:00"
+  	}
+
 }
 
 
@@ -1032,6 +1201,13 @@ output {
 	File OUT_INDL_R = "allSamples.hc.indels.R"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 10
+    time: "35:00:00"
+  	}
+
 }
 
 task variant_recalibrator_exec {
@@ -1090,6 +1266,12 @@ output {
 	File OUT_VQSR_INDEX = "allSamples.hc.vqsr.vcf.idx"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 10
+    time: "35:00:00"
+  	}
 }
 
 
@@ -1122,6 +1304,13 @@ output {
 	File OUT_VT_INDEX = "allSamples.hc.vqsr.vt.vcf.gz.tbi"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 10
+    time: "96:00:00"
+  	}
+
 }
 
 
@@ -1157,6 +1346,13 @@ output {
 	File OUT_MIL_INDEX = "allSamples.hc.vqsr.vt.mil.vcf.gz.tbi"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 5
+    time: "35:00:00"
+  	}
+
 }
 
 
@@ -1197,6 +1393,13 @@ output {
 	File OUT_SNPID_INDEX = "allSamples.hc.vqsr.vt.mil.snpId.vcf.gz.tbi"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 5
+    time: "24:00:00"
+  	}
+
 }
 
 
@@ -1245,6 +1448,12 @@ output {
 	File OUT_STATS = "allSamples.hc.vqsr.vt.mil.snpId.snpeff.vcf.stats.csv"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 5
+    time: "24:00:00"
+  	}
 }
 
 
@@ -1287,8 +1496,14 @@ output {
 	File OUT_ZIPPED = "allSamples.hc.vqsr.vt.mil.snpId.snpeff.dbnsfp.vcf.gz"
 	File OUT_ZIPPED_INDEX = "allSamples.hc.vqsr.vt.mil.snpId.snpeff.dbnsfp.vcf.gz.tbi"
 	
-
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 10
+    time: "24:00:00"
+  	}
+
 }
 
 
@@ -1318,6 +1533,13 @@ output {
 	File OUT_GEMINI = "allSamples.gemini.db"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 5
+    time: "24:00:00"
+  	}
+
 }
 
 
@@ -1349,6 +1571,13 @@ output {
 	File OUT_CHGRATE = "allSamples.hc.vqsr.vt.mil.snpId.snpeff.dbnsfp.vcf.part_changeRate.tsv"
 
 	}
+
+runtime {
+    memory_mb_per_core: 4775
+    cpus: 5
+    time: "24:00:00"
+  	}
+
 }
 
 
