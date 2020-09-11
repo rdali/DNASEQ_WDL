@@ -150,14 +150,14 @@
   "DnaSeq.gatkCallerScatter.gatk_haplotype_caller_EXCLD.NCT": 1,
 
 
-  "DnaSeq.merge_and_call_individual_gvcf_merge.THREADS": 1,
-  "DnaSeq.merge_and_call_individual_gvcf_merge.BUFFER": 1048576,
-  "DnaSeq.merge_and_call_individual_gvcf_merge.RAM": "6G",
+  "DnaSeq.merge_individual_gvcf.THREADS": 1,
+  "DnaSeq.merge_individual_gvcf.BUFFER": 1048576,
+  "DnaSeq.merge_individual_gvcf.RAM": "6G",
 
-  "DnaSeq.merge_and_call_individual_gvcf_calls.THREADS": 1,
-  "DnaSeq.merge_and_call_individual_gvcf_calls.BUFFER": 1048576,
-  "DnaSeq.merge_and_call_individual_gvcf_calls.RAM": "30G",
-  "DnaSeq.merge_and_call_individual_gvcf_calls.NCT": 1,
+  "DnaSeq.call_individual_gvcf.THREADS": 1,
+  "DnaSeq.call_individual_gvcf.BUFFER": 1048576,
+  "DnaSeq.call_individual_gvcf.RAM": "30G",
+  "DnaSeq.call_individual_gvcf.NCT": 1,
 
   "DnaSeq.combineGVCFScatter.combine_gvcf_INCLD.THREADS": 4,
   "DnaSeq.combineGVCFScatter.combine_gvcf_INCLD.BUFFER": 4194304,

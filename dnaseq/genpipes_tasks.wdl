@@ -921,7 +921,7 @@ runtime {
 
 
 
-task merge_and_call_individual_gvcf_merge {
+task merge_individual_gvcf {
 
 	String SAMPLE
 	Array[File] IN_VCFS_INTRVL
@@ -963,7 +963,7 @@ runtime {
 }
 
 
-task merge_and_call_individual_gvcf_calls {
+task call_individual_gvcf {
 
 	String SAMPLE
 	File IN_VCF_G

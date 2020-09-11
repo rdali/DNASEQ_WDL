@@ -380,7 +380,7 @@ workflow DnaSeq {
 		}
 
 
-		call genpipes_tasks.merge_and_call_individual_gvcf_merge {
+		call genpipes_tasks.merge_individual_gvcf {
 
 			input:
 			SAMPLE = sample.sample,
@@ -395,12 +395,12 @@ workflow DnaSeq {
 		}
 
 
-		call genpipes_tasks.merge_and_call_individual_gvcf_calls {
+		call genpipes_tasks.call_individual_gvcf {
 
 			input:
 			SAMPLE = sample.sample,
-			IN_VCF_G = merge_and_call_individual_gvcf_merge.OUT_VCF_G,
-			IN_VCF_G_INDEX = merge_and_call_individual_gvcf_merge.OUT_VCF_G_INDEX,
+			IN_VCF_G = merge_individual_gvcf.OUT_VCF_G,
+			IN_VCF_G_INDEX = merge_individual_gvcf.OUT_VCF_G_INDEX,
 
 			GENOME_FASTA = GENOME_FASTA,
 		
@@ -418,8 +418,8 @@ workflow DnaSeq {
 	call combineGVCFScatter.combineGVCFScatter {
 
 		input:
-		IN_VCFS_G = merge_and_call_individual_gvcf_merge.OUT_VCF_G,
-		IN_VCF_G_INDEX = merge_and_call_individual_gvcf_merge.OUT_VCF_G_INDEX,
+		IN_VCFS_G = merge_individual_gvcf.OUT_VCF_G,
+		IN_VCF_G_INDEX = merge_individual_gvcf.OUT_VCF_G_INDEX,
 
 		GENOME_FASTA = GENOME_FASTA,
 		INTERVALS = CHRS,
