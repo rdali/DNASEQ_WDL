@@ -433,7 +433,7 @@ workflow DnaSeq {
 	}
 
 
-	call genpipes_tasks.merge_and_call_combined_gvcf_merges {
+	call genpipes_tasks.merge_combined_gvcf {
 		
 		input:
 		VCFS = combineGVCFScatter.OUT_GVCFs,
@@ -450,11 +450,11 @@ workflow DnaSeq {
 
 
 
-	call genpipes_tasks.merge_and_call_combined_gvcf_calls {
+	call genpipes_tasks.call_combined_gvcf {
 
 		input:
-		IN_VCF_G = merge_and_call_combined_gvcf_merges.OUT_VCF_G,
-		IN_VCF_G_INDEX = merge_and_call_combined_gvcf_merges.OUT_VCF_G_INDEX,
+		IN_VCF_G = merge_combined_gvcf.OUT_VCF_G,
+		IN_VCF_G_INDEX = merge_combined_gvcf.OUT_VCF_G_INDEX,
 
 		GENOME_FASTA = GENOME_FASTA,
 
@@ -469,8 +469,8 @@ workflow DnaSeq {
 	call genpipes_tasks.variant_recalibrator_prep {
 
 		input:
-		IN_VCF_ALL = merge_and_call_combined_gvcf_calls.OUT_VCF_ALL,
-		IN_VCF_ALL_INDEX = merge_and_call_combined_gvcf_calls.OUT_VCF_ALL_INDEX,
+		IN_VCF_ALL = call_combined_gvcf.OUT_VCF_ALL,
+		IN_VCF_ALL_INDEX = call_combined_gvcf.OUT_VCF_ALL_INDEX,
 
 		GENOME_FASTA = GENOME_FASTA,
 
@@ -487,8 +487,8 @@ workflow DnaSeq {
 	call genpipes_tasks.variant_recalibrator_exec {
 
 		input:
-		IN_VCF_ALL = merge_and_call_combined_gvcf_calls.OUT_VCF_ALL,
-		IN_VCF_ALL_INDEX = merge_and_call_combined_gvcf_calls.OUT_VCF_ALL_INDEX,
+		IN_VCF_ALL = call_combined_gvcf.OUT_VCF_ALL,
+		IN_VCF_ALL_INDEX = call_combined_gvcf.OUT_VCF_ALL_INDEX,
 		IN_SNP_RCL = variant_recalibrator_prep.OUT_SNP_RCL,
 		IN_SNP_TRNCH = variant_recalibrator_prep.OUT_SNP_TRNCH,
 		IN_SNP_R = variant_recalibrator_prep.OUT_SNP_R,

@@ -358,7 +358,7 @@ output {
 	}
 
 runtime {
-    memory_mb_per_core: 1200
+    memory_mb_per_core: 2200
     cpus: 5
     time: "71:00:00"
   	}
@@ -409,7 +409,7 @@ output {
 
 runtime {
     memory_mb_per_core: 4775
-    cpus: 10
+    cpus: 12
     time: "71:00:00"
   	}
 
@@ -462,7 +462,7 @@ output {
 
 runtime {
     memory_mb_per_core: 4775
-    cpus: 10
+    cpus: 12
     time: "71:00:00"
   	}
 
@@ -1059,7 +1059,7 @@ runtime {
 
 
 
-task merge_and_call_combined_gvcf_merges {
+task merge_combined_gvcf {
 
 	Array[File] VCFS
 	Array[File] VCF_INDEXs
@@ -1102,7 +1102,7 @@ runtime {
 
 
 
-task merge_and_call_combined_gvcf_calls {
+task call_combined_gvcf {
 
 	File IN_VCF_G
 	File IN_VCF_G_INDEX

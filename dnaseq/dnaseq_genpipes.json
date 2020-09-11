@@ -168,13 +168,13 @@
   "DnaSeq.combineGVCFScatter.combine_gvcf_EXCLD.RAM": "24G",
 
 
-  "DnaSeq.merge_and_call_combined_gvcf_merges.THREADS": 1,
-  "DnaSeq.merge_and_call_combined_gvcf_merges.BUFFER": 1048576,
-  "DnaSeq.merge_and_call_combined_gvcf_merges.RAM": "6G",
+  "DnaSeq.merge_combined_gvcf.THREADS": 1,
+  "DnaSeq.merge_combined_gvcf.BUFFER": 1048576,
+  "DnaSeq.merge_combined_gvcf.RAM": "6G",
 
-  "DnaSeq.merge_and_call_combined_gvcf_calls.THREADS": 1,
-  "DnaSeq.merge_and_call_combined_gvcf_calls.BUFFER": 1048576,
-  "DnaSeq.merge_and_call_combined_gvcf_calls.RAM": "30G",
+  "DnaSeq.call_combined_gvcf.THREADS": 1,
+  "DnaSeq.call_combined_gvcf.BUFFER": 1048576,
+  "DnaSeq.call_combined_gvcf.RAM": "30G",
 
   "DnaSeq.variant_recalibrator_prep.THREADS": 1,
   "DnaSeq.variant_recalibrator_prep.BUFFER": 1048576,
