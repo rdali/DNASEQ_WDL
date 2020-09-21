@@ -3,10 +3,10 @@
   "DnaSeq.TMPDIR": "/scratch/rdali",
 
   "DnaSeq.SPECIES": "HUMAN",
-  "DnaSeq.ASSEMBLY": "hg19", 
+  "DnaSeq.ASSEMBLY": "hg19",
   "DnaSeq.CHRS_UCSC": ["chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22"],
   "DnaSeq.CHRS": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22"],
-  "DnaSeq.CHR_EXCLUDE": ["MT", "GL000207.1", "GL000226.1", "GL000229.1", "GL000231.1", "GL000210.1", "GL000239.1", "GL000235.1", "GL000201.1", "GL000247.1", "GL000245.1", "GL000197.1", "GL000203.1", "GL000246.1", "GL000249.1", "GL000196.1", "GL000248.1", "GL000244.1", "GL000238.1", "GL000202.1", "GL000234.1", "GL000232.1", "GL000206.1", "GL000240.1", "GL000236.1", "GL000241.1", "GL000243.1", "GL000242.1", "GL000230.1", "GL000237.1", "GL000233.1", "GL000204.1", "GL000198.1", "GL000208.1", "GL000191.1", "GL000227.1", "GL000228.1", "GL000214.1", "GL000221.1", "GL000209.1", "GL000218.1", "GL000220.1", "GL000213.1", "GL000211.1", "GL000199.1", "GL000217.1", "GL000216.1", "GL000215.1", "GL000205.1", "GL000219.1", "GL000224.1", "GL000223.1", "GL000195.1", "GL000212.1", "GL000222.1", "GL000200.1", "GL000193.1", "GL000194.1", "GL000225.1", "GL000192.1"],
+  "DnaSeq.CHR_EXCLUDE": ["GL000207.1", "GL000226.1", "GL000229.1", "GL000231.1", "GL000210.1", "GL000239.1", "GL000235.1", "GL000201.1", "GL000247.1", "GL000245.1", "GL000197.1", "GL000203.1", "GL000246.1", "GL000249.1", "GL000196.1", "GL000248.1", "GL000244.1", "GL000238.1", "GL000202.1", "GL000234.1", "GL000232.1", "GL000206.1", "GL000240.1", "GL000236.1", "GL000241.1", "GL000243.1", "GL000242.1", "GL000230.1", "GL000237.1", "GL000233.1", "GL000204.1", "GL000198.1", "GL000208.1", "GL000191.1", "GL000227.1", "GL000228.1", "GL000214.1", "GL000221.1", "GL000209.1", "GL000218.1", "GL000220.1", "GL000213.1", "GL000211.1", "GL000199.1", "GL000217.1", "GL000216.1", "GL000215.1", "GL000205.1", "GL000219.1", "GL000224.1", "GL000223.1", "GL000195.1", "GL000212.1", "GL000222.1", "GL000200.1", "GL000193.1", "GL000194.1", "GL000225.1", "GL000192.1"],
   "DnaSeq.GENOME_FASTA": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.fa",
   "DnaSeq.BWA_INDX": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/bwa_index/Homo_sapiens.GRCh37.fa",
   "DnaSeq.GENOME_DICT": "/cvmfs/soft.mugqic/CentOS6/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.dict",
@@ -46,7 +46,7 @@
   "DnaSeq.MOD_MUGQICTOOLS": "mugqic/mugqic_tools/2.2.2",
   "DnaSeq.PYTHON_TOOLS": "/cvmfs/soft.mugqic/CentOS6/software/mugqic_tools/mugqic_tools-2.2.2/python-tools/",
   "DnaSeq.MOD_MULTIQC": "mugqic/MultiQC/1.8",
-  
+
 
 
   "DnaSeq.readsetScatter.picard_sam_to_fastq.THREADS": 1,
