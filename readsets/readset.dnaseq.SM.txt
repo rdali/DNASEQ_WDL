@@ -1,0 +1,3 @@
+Sample	Readset	Library	RunType	Run	Lane	Adapter1	Adapter2	QualityOffset	BED	FASTQ1	FASTQ2	BAM
+Son	Son10	4	PAIRED_END	1	1	AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC	AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT	33		/home/rdali/projects/rrg-bourqueg-ad/rdali/C3G/projects/dnaseqTestSet/rawReads/NA24385_Son_10.pair1.fastq.gz	/home/rdali/projects/rrg-bourqueg-ad/rdali/C3G/projects/dnaseqTestSet/rawReads/NA24385_Son_10.pair2.fastq.gz	
+Mother	Mother10	4	PAIRED_END	1	1	AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC	AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT	33		/home/rdali/projects/rrg-bourqueg-ad/rdali/C3G/projects/dnaseqTestSet/rawReads/NA24143_Mother_10.pair1.fastq.gz	/home/rdali/projects/rrg-bourqueg-ad/rdali/C3G/projects/dnaseqTestSet/rawReads/NA24143_Mother_10.pair2.fastq.gz	

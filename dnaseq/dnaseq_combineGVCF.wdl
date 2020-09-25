@@ -24,6 +24,15 @@ workflow combineGVCFScatter {
 
 
 
+	call genpipes_tasks.array_extend as concat_exclude {
+
+    	input:
+    	list1 = CHR_EXCLUDE,
+    	list2 = INTERVALS
+    	
+    }
+
+
   scatter(chr in INTERVALS){
 
     call genpipes_tasks.combine_gvcf as combine_gvcf_INCLD {
@@ -49,7 +58,7 @@ workflow combineGVCFScatter {
         IN_VCFS_G = IN_VCFS_G,
         IN_VCF_G_INDEX = IN_VCF_G_INDEX,
 		GENOME_FASTA = GENOME_FASTA,
-		CHR_EXCLUDE = CHR_EXCLUDE,
+		CHR_EXCLUDE = concat_exclude.OUT,
 		INTERVAL_NAME = "others",
 		TMPDIR = TMPDIR,
 		MOD_JAVA = MOD_JAVA,
