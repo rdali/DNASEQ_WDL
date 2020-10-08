@@ -359,7 +359,7 @@ output {
 
 runtime {
     memory_mb_per_core: 2200
-    cpus: 5
+    cpus: 8
     time: "71:00:00"
   	}
 
